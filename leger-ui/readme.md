@@ -1,5 +1,7 @@
 # Leger-UI Frontend Compiler
 
+> This project is still in early development, it is not recommended to use in production.
+
 Supra-ultra-blazingly fast frontend... because it's just vanilla HTML, CSS & JavaScript.
 
 With the Leger-UI frontend compiler, you can design and manage projects in the same way you would with any other front-end framework, except that you compile your project into a lightweight vanilla website.
@@ -294,16 +296,25 @@ becomes:
 
 This is where the fun begins... In this section we will see how to make a dynamic page with Leger-UI Scripting.
 
+### Procedures
+
+A procedure is an exression identified by `$!`. Procedures will get converted into JavaScript functions. The procedure's arguments will define the function's content. For a full list of Procedures Commands see[List of Procedures Commands](#list-of-procedure-commands) section.
 
 ```
+$!decrease variable="counter", sub="1", call="updateCounter";
+$!increase variable="counter", add="1", call="updateCounter";
 
+$!updateCounter element="counter", print="counter";
 
-
+<button onClick="decrease()" id="setButton">-</button>
+<button onClick="increase()" id="setButton">+</button>
+<div>Counter is at : <span id="counter"></span></div>
 ```
 
 ---
 
-
 ## List of Commands
+
+## List of Procedures Commands
 
 ---
