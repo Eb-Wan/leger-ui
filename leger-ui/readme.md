@@ -295,18 +295,8 @@ becomes:
 This is where the fun begins... In this section we will see how to make a dynamic page with Leger-UI Scripting.
 
 
-
-Notes : 
-
-Ideally I want a system of events, pre-made (like http requests) or custom.
-
-You can create events and append scripts to them (bit like middlewares) that will modify the data that you are passing through. And at the end of the pipeline you can display that data through a component.
-
 ```
-$:onclick eventId="eventPipelineDemonstration" elementId="htmlButtonId";
 
-$:appendGet eventId="eventPipelineDemonstration" url="localhost/api/example";
-$:appendConditional eventId="eventPipelineDemonstration" condition="sucess==true" true="elementComponent" false="errorComponent" targetId="elementList";
 
 
 ```
