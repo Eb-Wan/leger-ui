@@ -1,0 +1,9 @@
+{
+    "pages": [
+        { "id": "index", "path": "pages/home.lgs" },
+        { "id": "contact", "path": "pages/contact.lgs" }
+    ],
+    "globalParam": [
+        { "id":"apiUrl", "value":"https://api.example.com/" }
+    ]
+}

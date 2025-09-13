@@ -1,0 +1,15 @@
+$.head title="Home";
+<body>
+    <h1>$%test;</h1>
+    /* $!onLoad get="$%apiUrl;/catalog/page/1" dataVar="list" errorVar="error";
+    $!onClick element="refreshButton" get="$%apiUrl;/catalog/page/1" dataVar="list" errorVar="error";
+
+    $!onClick element="clearButton" set="error" to="";
+    $!onClick element="clearButton" set="list" to="";
+    
+    <button id="refreshButton">Refresh</button>
+    <button id="clearButton">Clear</button>
+    $#errorMessage: state="error";
+    $#product: state="list";
+    $#product: state="list"; */
+</body>

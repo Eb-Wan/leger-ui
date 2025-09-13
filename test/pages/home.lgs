@@ -1,0 +1,90 @@
+$:import id="head", path="components/head.lgs";
+$:define id="test", value="$:date;";
+
+$:use id="userComponent", path="components/user.lgs";
+$:use id="errorComponent", path="components/error.lgs";
+$:use id="loadingComponent", path="components/spinner.lgs";
+
+$:declare id="counter", value="0";
+
+$.head title="Home";
+
+$!fetchUsers get="https://jsonplaceholder.typicode.com/users", call="displaySpinner", success="displayUsers", error="displayError";
+
+$!displayUsers element="userList", render="userComponent";
+$!displaySpinner element="userList", render="loadingComponent";
+$!displayError element="userList", render="errorComponent";
+
+$!decrease variable="counter", sub="1", call="updateCounter";
+$!increase variable="counter", add="1", call="updateCounter";
+
+$!updateCounter element="counter", print="counter";
+
+<body onLoad="updateCounter()">
+    <h1>$%test;</h1>
+    <button onClick="fetchUsers()" id="refreshButton">Refresh !</button>
+    <button onClick="decrease()" id="setButton">-</button>
+    <button onClick="increase()" id="setButton">+</button>
+    <div>Counter is at : <span id="counter"></span></div>
+    <div id="userList"></div>
+</body>
+
+/*
+${
+    fetchUsers{
+        #userList = loadingComponent
+        get "example.com"
+        success{ #userList = map data as userComponent }
+        error  #userList = map error as errorComponent }
+    }
+
+    var counter "0"
+    bind counter counter
+    increase{ add counter 1 }
+    decrease{ sub counter 1 }
+}
+
+<script>
+    const variables = {};
+    const components = {
+        userComponent: `template ${params.title}`;
+        errorComponent: `template`;
+        loadingComponent: `template`;
+    };
+
+    function fetchUsers(params) {
+        userList.innerHTML = render(components.loadingComponent);
+
+        fetch("example.com")
+        .then(res => res.json())
+        .then(data => sucess(data))
+        .catch(error => error(error))
+        
+        function success(params) {
+            userList.innerHTML = render(components.userComponent, params.data);
+        }
+        function error (params) {
+            userList.innerHTML = render(components.errorComponent, params.data);
+        }
+    }
+
+    variables.counter = { value:0, tiedElements: [] };
+    variables.counter.tiedElements.push("counter");
+    function increase(params) {
+        updateVariable(variables.counter, variables.counter.value+1);
+    }
+    function decrease(params) {
+        updateVariable(variables.counter, variables.counter.value-1);
+    }
+
+    function updateVariable(variable, newValue) {
+        variable.value = newValue;
+        variable.tiedElements.forEach(e => document.getElementById(e).innerHTML = newValue);
+    }
+    function render(component, paramsArray=[{}]) {
+        const html = paramsArray.map(params => component+"\n");
+        return html;
+    }
+
+</script>
+*/

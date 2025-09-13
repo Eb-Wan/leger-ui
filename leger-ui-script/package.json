@@ -1,0 +1,29 @@
+{
+  "name": "leger-script",
+  "displayName": "Leger UI script",
+  "description": "Syntax highlight for leger scripts.",
+  "version": "0.0.1",
+  "author": {
+		"name": "EB-Wan"
+	},
+  "publisher": "EB-Wan",
+  "engines": {
+    "vscode": "^1.103.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "lgs",
+      "aliases": ["leger-script", "lgs"],
+      "extensions": [".lgs"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "lgs",
+      "scopeName": "source.lgs",
+      "path": "./syntaxes/lgs.tmLanguage.json"
+    }]
+  }
+}
