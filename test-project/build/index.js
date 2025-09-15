@@ -1,4 +1,4 @@
-const templates = {userComponent:`<div><img src="$$imageUrl;" alt="User profile picture"><div><div>$$username;</div><div>$$id;</div></div><div>`,errorComponent:`<span style="color: red">$$status; : $$errorMessage;</span>`,loadingComponent:``};
+const templates = {userComponent:`<div><img src="$$imageUrl;" alt="User profile picture"><div><div>Username : $$username;</div><div>Company : $$company.name;</div></div><div>`,errorComponent:`<span style="color: red">$$status; : $$errorMessage;</span>`,loadingComponent:``};
 let counter = 0;
 
 function fetchUsers(params) { let status = 100; fetch("https://jsonplaceholder.typicode.com/users").then(res => { status = res.status; return res.json(); }).then(data => successFunction(data, status)).catch(error => errorFunction(error, status)); displaySpinner(params); function successFunction(data, status) { displayUsers(data);} function errorFunction(error, status) { displayError({ errorMessage: error.message, status }); console.error(error);} }

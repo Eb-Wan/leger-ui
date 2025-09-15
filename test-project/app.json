@@ -4,6 +4,6 @@
         { "id": "contact", "path": "pages/contact.lgs" }
     ],
     "globalParam": [
-        { "id":"apiUrl", "value":"https://api.example.com/" }
+        { "id":"apiUrl", "value":"https://jsonplaceholder.typicode.com/users" }
     ]
 }
