@@ -7,14 +7,14 @@ const path = require("path");
 const compilerDir = path.dirname(process.argv[1]);
 
 const config = JSON.parse(fs.readFileSync(compilerDir+"/leger-ui-config.json"));
-const templateCompiler = require("./compilers/leger-template-compiler.js");
+// const templateCompiler = require("./compilers/leger-template-compiler.js");
 const procedureCompiler = require("./compilers/leger-procedure-compiler.js");
 const commandList = require("./leger-ui-commands.js");
 
 let pageData = {
+    importedCss: [],
     importedScripts: [],
     globalParamsList: [],
-    templates: [],
     variables: [],
     procedures: []
 };
@@ -40,33 +40,61 @@ projectFile.pages.forEach(page => {
         expressionIndex = pageContent.search(regex);
     }
 
-    // compile CSS
-    const pageCssContent = "";
+    
     // compile templates, variable and procedures into JS
-    let pageJSContent = templateCompiler(pageData.templates, projectDirectory)+"\n";
-    pageData.variables.forEach(v => pageJSContent += `let ${v.id} = ${(isNaN(v.value) ? '"'+v.value+'"' : v.value) || ""};\n`);
-    pageJSContent += procedureCompiler(pageData.procedures, projectDirectory);
+    let pageJsContent = templateCompiler(pageData.importedScripts, projectDirectory)+"\n";
+    pageData.variables.forEach(v => pageJsContent += `let ${v.id} = ${(isNaN(v.value) ? '"'+v.value+'"' : v.value) || ""};\n`);
+    pageJsContent += procedureCompiler(pageData.procedures, projectDirectory);
+    
+    // compile CSS
+    let pageCssContent = "";
+    pageData.importedCss.forEach(c => pageCssContent += fs.readFileSync(projectDirectory+"/"+c.path, "utf-8")+"\n");
     
     if (pageCssContent.length > 0) pageContent = pageContent.replace("</head>", `<link href="./${page.id}.css" rel="stylesheet"></link></head>`);
-    if (pageJSContent.length > 0) pageContent = pageContent.replace("</head>", `<script src="./${page.id}.js" defer></script><script src="./leger-js-functions.js" defer></script></head>`);
+    if (pageJsContent.length > 0) pageContent = pageContent.replace("</head>", `<script src="./${page.id}.js" defer></script><script src="./leger-js-functions.js" defer></script></head>`);
     pageContent = pageContent.replace(/(\s)\1+|\n/g, "");
 
     // write files
     fs.writeFileSync(projectDirectory+"/build/"+page.id+".html", pageContent, "utf-8");
     fs.copyFileSync(compilerDir+"/leger-js-functions.js", projectDirectory+"/build/leger-js-functions.js");
-    if (pageCssContent.length > 0) fs.writeFileSync(projectDirectory+"/build/"+page.id+".css", pageCSSContent, "utf-8");
-    if (pageJSContent.length > 0) fs.writeFileSync(projectDirectory+"/build/"+page.id+".js", pageJSContent, "utf-8");
+    if (pageCssContent.length > 0) fs.writeFileSync(projectDirectory+"/build/"+page.id+".css", pageCssContent, "utf-8");
+    if (pageJsContent.length > 0) fs.writeFileSync(projectDirectory+"/build/"+page.id+".js", pageJsContent, "utf-8");
 
     pageData = {
         importedScripts: [],
+        importedCss: [],
         globalParamsList: [],
-        templates: [],
         variables: [],
         procedures: []
     };
 });
 process.exit(0);
 
+function templateCompiler(templates, projectDirectory) {
+    try {
+        let compiledTemplates = "";
+        templates.forEach((t, index) => {
+            let template = fs.readFileSync(projectDirectory+"/"+t.path, "utf-8").replace(/(\s)\1+|\n/g, "");
+            if (template.includes("`")) throw new Error(`Template "${t.id}" contains backticks !`);
+
+            // build
+            let regex = buildRegex;
+            let expressionIndex = template.search(regex);
+            while(expressionIndex != -1) {
+                const expression = extractExpression(expressionIndex, template);
+                const result = resolveExpressionTemplate(expression, t.id);
+                template = template.replaceAll(expression, result);
+                expressionIndex = template.search(regex);
+            }
+
+            compiledTemplates += `${t.id}:\`${template}\`${index != templates.length - 1 ?",":""}`;
+        });
+        return `const templates = {${compiledTemplates}};`;
+    } catch (error) {
+        console.log("Error while compiling templates.", error);
+        process.exit(1);
+    }
+}
 
 function extractExpression(index, pageContent) {
     let extracted = "";
@@ -98,6 +126,27 @@ function resolveExpression(expression) {
             return resolveFunction(expression.key, expression.args);
         case "$!":
             return resolveProcedure(expression.key, expression.args);
+    
+        default:
+            break;
+    }
+    throw new Error(`Unresolvable expression "${expression}" !`);
+}
+
+function resolveExpressionTemplate(expression, id) {
+    expression = parseExpression(expression);
+
+    switch (expression.id) {
+        case "$%":
+            return resolveGlobalParam(expression.key);
+        case "$:":
+            return resolveCommand(expression.key, expression.args);
+        case "$.":
+            console.log("Warning: Imported scripts in template \"" + id + "\". Scripts are not rendered in templates.");
+            return "";
+        case "$!":
+            console.log("Warning: Procedure declaration in template \"" + id + "\". Declaration are not used in templates.");
+            return "";
     
         default:
             break;

@@ -1,0 +1,3 @@
+$:import path="components/spinner.css";
+
+<div class="spinner"></div>

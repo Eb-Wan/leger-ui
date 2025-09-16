@@ -1,9 +1,9 @@
 $:import id="head", path="components/head.lgs";
 $:define id="test", value="$:date;";
 
-$:use id="userComponent", path="components/user.lgs";
-$:use id="errorComponent", path="components/error.lgs";
-$:use id="loadingComponent", path="components/spinner.lgs";
+$:import id="userComponent", path="components/user.lgs";
+$:import id="errorComponent", path="components/error.lgs";
+$:import id="loadingComponent", path="components/spinner.lgs";
 
 $:declare id="counter", value="0";
 
@@ -23,6 +23,7 @@ $!updateCounter element="counter", print="counter";
 <body onLoad="updateCounter()">
     <h1>$%test;</h1>
     <button onClick="fetchUsers()" id="refreshButton">Refresh !</button>
+    <button onClick="displaySpinner()">Spin !</button>
     <button onClick="decrease()" id="setButton">-</button>
     <button onClick="increase()" id="setButton">+</button>
     <div>Counter is at : <span id="counter"></span></div>
