@@ -3,7 +3,7 @@
         { "id": "index", "path": "pages/home.lgs" },
         { "id": "contact", "path": "pages/contact.lgs" }
     ],
-    "globalParam": [
+    "globalParams": [
         { "id":"apiUrl", "value":"https://jsonplaceholder.typicode.com/users" }
     ]
 }

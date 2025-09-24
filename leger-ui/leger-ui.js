@@ -1,32 +1,37 @@
-if (!process.argv[2] || !process.argv[2].includes(".json")) {
+const fs = require("fs");
+const path = require("path");
+
+if (!process.argv[2] || !process.argv[2].includes(".json") || !fs.existsSync(process.argv[2])) {
     console.error(`Must be a path to a JSON file.`);
     process.exit(1);
 }
-const fs = require("fs");
-const path = require("path");
-const compilerDir = path.dirname(process.argv[1]);
+if (process.argv[3] && !fs.existsSync(process.argv[3])) {
+    console.error("Output directory doesn't exists.");
+} 
 
+const compilerDir = path.dirname(process.argv[1]);
 const config = JSON.parse(fs.readFileSync(compilerDir+"/leger-ui-config.json"));
-// const templateCompiler = require("./compilers/leger-template-compiler.js");
 const procedureCompiler = require("./compilers/leger-procedure-compiler.js");
 const commandList = require("./leger-ui-commands.js");
 
 let pageData = {
     importedCss: [],
     importedScripts: [],
-    globalParamsList: [],
+    globalParams: [],
     variables: [],
     procedures: []
 };
 
 const projectDirectory = path.dirname(process.argv[2]);
+const outputDirectory = process.argv[3] ? path.dirname(process.argv[3]) : path.dirname(process.argv[2]);
 const projectFile = JSON.parse(fs.readFileSync(process.argv[2]));
 
 const buildRegex = /\$[\.|\%|\:|\!]/;
 
-if (fs.existsSync(projectDirectory+"/build")) fs.rmSync(projectDirectory+"/build", { recursive: true });
-fs.mkdirSync(projectDirectory+"/build");
+if (fs.existsSync(outputDirectory+"/views")) fs.rmSync(outputDirectory+"/views", { recursive: true });
+fs.mkdirSync(outputDirectory+"/views");
 projectFile.pages.forEach(page => {
+    pageData.globalParams = [{ id: "pageId", value: page.id }, ...projectFile.globalParams];
     let pageContent = fs.readFileSync(projectDirectory+"/"+page.path, "utf-8");
     pageContent = pageContent.replaceAll(/\/\*([\s\S]*?)\*\//gm, "");
     
@@ -55,15 +60,15 @@ projectFile.pages.forEach(page => {
     pageContent = pageContent.replace(/(\s)\1+|\n/g, "");
 
     // write files
-    fs.writeFileSync(projectDirectory+"/build/"+page.id+".html", pageContent, "utf-8");
-    fs.copyFileSync(compilerDir+"/leger-js-functions.js", projectDirectory+"/build/leger-js-functions.js");
-    if (pageCssContent.length > 0) fs.writeFileSync(projectDirectory+"/build/"+page.id+".css", pageCssContent, "utf-8");
-    if (pageJsContent.length > 0) fs.writeFileSync(projectDirectory+"/build/"+page.id+".js", pageJsContent, "utf-8");
+    fs.writeFileSync(outputDirectory+"/views/"+page.id+".html", pageContent, "utf-8");
+    fs.copyFileSync(compilerDir+"/leger-js-functions.js", outputDirectory+"/views/leger-js-functions.js");
+    if (pageCssContent.length > 0) fs.writeFileSync(outputDirectory+"/views/"+page.id+".css", pageCssContent, "utf-8");
+    if (pageJsContent.length > 0) fs.writeFileSync(outputDirectory+"/views/"+page.id+".js", pageJsContent, "utf-8");
 
     pageData = {
         importedScripts: [],
         importedCss: [],
-        globalParamsList: [],
+        globalParams: [],
         variables: [],
         procedures: []
     };
@@ -228,7 +233,7 @@ function resolveCommand(key, params) {
 }
 
 function resolveGlobalParam(key, params) {
-    const globalParam = pageData.globalParamsList.find(p => p.id == key);
+    const globalParam = pageData.globalParams.find(p => p.id == key);
     if (!globalParam) throw new Error(`Global param "${key}" does not exists !`);
     return globalParam.value;
 }

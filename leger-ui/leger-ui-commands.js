@@ -1,5 +1,3 @@
-const mime = require("mime");
-
 const date = () => {
     const now = new Date();
     return now.toLocaleDateString();
@@ -13,7 +11,7 @@ const define = ({ id, value }, pageData) => {
     return "";
 }
 const include = ({ id, path }, pageData) => {
-    if (mime.getType(path) == "text/css") pageData.importedCss.push({ id, path });
+    if (path.includes("css")) pageData.importedCss.push({ id, path });
     else pageData.importedScripts.push({ id, path });
     return "";
 }
