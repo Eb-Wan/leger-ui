@@ -1,13 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 
-if (!process.argv[2] || !process.argv[2].includes(".json") || !fs.existsSync(process.argv[2])) {
-    console.error(`Must be a path to a JSON file.`);
-    process.exit(1);
-}
-if (process.argv[3] && !fs.existsSync(process.argv[3])) {
-    console.error("Output directory doesn't exists.");
-} 
+if (!process.argv[2] || !process.argv[2].includes(".json") || !fs.existsSync(process.argv[2])) exitError(`Must be a path to a JSON file.`);
+if (process.argv[3] && !fs.existsSync(process.argv[3])) exitError("Output directory doesn't exists.");
 
 const compilerDir = path.dirname(process.argv[1]);
 const config = JSON.parse(fs.readFileSync(compilerDir+"/leger-ui-config.json"));
@@ -23,15 +18,18 @@ let pageData = {
 };
 
 const projectDirectory = path.dirname(process.argv[2]);
-const outputDirectory = process.argv[3] ? path.dirname(process.argv[3]) : path.dirname(process.argv[2]);
+const outputDirectory = process.argv[3] ? process.argv[3] : path.dirname(process.argv[2]);
 const projectFile = JSON.parse(fs.readFileSync(process.argv[2]));
 
 const buildRegex = /\$[\.|\%|\:|\!]/;
 
-if (fs.existsSync(outputDirectory+"/views")) fs.rmSync(outputDirectory+"/views", { recursive: true });
-fs.mkdirSync(outputDirectory+"/views");
+// if (fs.existsSync(outputDirectory+"/views")) fs.rmSync(outputDirectory+"/views", { recursive: true });
+// fs.mkdirSync(outputDirectory+"/views");
+
 projectFile.pages.forEach(page => {
-    pageData.globalParams = [{ id: "pageId", value: page.id }, ...projectFile.globalParams];
+    pageData.globalParams = propertyToParam(projectFile.globalParams);
+    pageData.globalParams.push({ id: "pageId", value: page.id });
+    
     let pageContent = fs.readFileSync(projectDirectory+"/"+page.path, "utf-8");
     pageContent = pageContent.replaceAll(/\/\*([\s\S]*?)\*\//gm, "");
     
@@ -44,7 +42,6 @@ projectFile.pages.forEach(page => {
         pageContent = pageContent.replaceAll(expression, result);
         expressionIndex = pageContent.search(regex);
     }
-
     
     // compile templates, variable and procedures into JS
     let pageJsContent = templateCompiler(pageData.importedScripts, projectDirectory)+"\n";
@@ -73,7 +70,8 @@ projectFile.pages.forEach(page => {
         procedures: []
     };
 });
-process.exit(0);
+
+exitFinished();
 
 function templateCompiler(templates, projectDirectory) {
     try {
@@ -96,8 +94,7 @@ function templateCompiler(templates, projectDirectory) {
         });
         return `const templates = {${compiledTemplates}};`;
     } catch (error) {
-        console.log("Error while compiling templates.", error);
-        process.exit(1);
+        exitError("Error while compiling templates.", error);
     }
 }
 
@@ -241,6 +238,26 @@ function resolveGlobalParam(key, params) {
 function resolveProcedure(key, params) {
     pageData.procedures.push({ id:key, params});
     return "";
+}
+
+function propertyToParam(obj) {
+    const params = [];
+    if (Object.keys(obj).length == 0) return params;
+    for (const [key, value] of Object.entries(obj)) {
+        params.push({ id: key, value });
+    }
+    return params;
+}
+
+function exitFinished() {
+    console.log(`\nLEGER-COMPILER : Done compiling ${process.argv[2]} !`)
+    process.exit(0);
+}
+
+function exitError(message, error) {
+    console.log("\nLEGER-COMPILER : "+message+"\n");
+    if (error) console.log(error);
+    process.exit(1);
 }
 
 // function encodeEntities(str) {
