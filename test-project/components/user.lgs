@@ -1,7 +1,0 @@
-<div>
-    <img src="$$imageUrl;" alt="User profile picture">
-    <div>
-        <div>Username : $$username;</div>
-        <div>Company : $$company.name;</div>
-    </div>
-<div>
