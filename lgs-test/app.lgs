@@ -1,0 +1,49 @@
+include index.lgs index;
+include contact.lgs contact;
+
+
+<index>
+    <view>
+        <title>Home</title>
+        <body>
+            /* get index html */
+            $index param1="yes" param2="yes";
+        </body>
+    </view>
+
+    <script>
+        function foo(bar) {
+            return bar;
+        }
+        /* get index js */
+        $index;
+    </script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* get index css */
+        $index;
+    </style>
+</index>
+
+<contact>
+    <view>
+        <title>Contact</title>
+        <body>
+            /* get index html */
+            $contact;
+        </body>
+    </view>
+
+    /*
+        If the style and script tags aren't added,
+        they will automatically get added.
+
+        This behaviour can be overriden by
+        adding the tags here and leaving them empty.
+    */
+</contact>

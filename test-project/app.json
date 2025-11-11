@@ -1,9 +1,0 @@
-{
-    "pages": [
-        { "id": "index", "path": "pages/home.lgs" },
-        { "id": "contact", "path": "pages/contact.lgs" }
-    ],
-    "globalParams": [
-        { "id":"apiUrl", "value":"https://jsonplaceholder.typicode.com/users" }
-    ]
-}

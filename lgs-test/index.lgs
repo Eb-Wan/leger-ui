@@ -1,0 +1,22 @@
+<view>
+    <main>
+        <h1>
+            Home
+        </h1>
+        <p>Here is some Leger script for you !</p>
+        <table>
+            <thead>
+                <tr><td>Param 1</td><td>Param 2</td></tr>
+            </thead>
+            <tbody>
+                <tr><td>$param1;</td><td>$param2;</td></tr>
+            </tbody>
+        </table>
+    </main>
+</view>
+
+<style>
+</style>
+
+<script>
+</script>
