@@ -1,6 +1,7 @@
-include index.lgs index;
-include contact.lgs contact;
-
+<declare>
+    <index>/index.lgs;</index>
+    <contact>/contact.lgs;</contact>
+</declare>
 
 <index>
     <view>
@@ -15,6 +16,7 @@ include contact.lgs contact;
         function foo(bar) {
             return bar;
         }
+        
         /* get index js */
         $index;
     </script>
@@ -47,3 +49,8 @@ include contact.lgs contact;
         adding the tags here and leaving them empty.
     */
 </contact>
+
+<write>
+    <index>index</index>
+    <contact>contact</contact>
+</write>
