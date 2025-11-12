@@ -1,23 +1,16 @@
 const lgsInterpolation = require("./lgs-interpolation.js");
 
-function declare(params, mem) {
-    for (const [key, value] of Object.entries(params)) {
-        mem.declarations[key] = value;
-    }
+function view(lgs, mem) {
+    mem["view"] = lgsInterpolation(lgs, mem);
 }
-
-function view() {
-
+function style(lgs, mem) {
+    mem["style"] = lgsInterpolation(lgs, mem);
 }
-function style() {
-    
-}
-function script() {
-    
+function script(lgs, mem) {
+    mem["script"] = lgsInterpolation(lgs, mem);
 }
 
 const lgsFunctions = [
-    { id: "declare", func: declare },
     { id: "view", func: view },
     { id: "style", func: style },
     { id: "script", func: script }

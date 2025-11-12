@@ -1,7 +1,5 @@
-<declare>
-    <index>/index.lgs;</index>
-    <contact>/contact.lgs;</contact>
-</declare>
+<index>/index.lgs;</index>
+<contact>/contact.lgs;</contact>
 
 <index>
     <view>

@@ -15,7 +15,10 @@ const projectDirectory = path.dirname(process.argv[2]);
 const outputDirectory = process.argv[3] ? process.argv[3] : path.dirname(process.argv[2]);
 
 try {
-    lgsExecute(process.argv[2], projectDirectory, outputDirectory);
+    const results = lgsExecute(process.argv[2], projectDirectory, outputDirectory);
+
+    // take variables containing view or style or script and write the files
+
     exitFinished();
 } catch (error) {
     exitError(error.message ?? "An error occured", error)
@@ -30,3 +33,5 @@ function exitError(message, error) {
     if (error) console.log(error);
     process.exit(1);
 }
+
+module.exports = { projectDirectory, outputDirectory };
