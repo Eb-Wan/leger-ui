@@ -1,12 +1,12 @@
-<index>/index.lgs;</index>
-<contact>/contact.lgs;</contact>
 
-<index>
+/* Create auto import */
+<indexPage>
+    <index>$/index.lgs param1="p1";</index>
     <view>
         <title>Home</title>
         <body>
             /* get index html */
-            $index param1="yes" param2="yes";
+            $$index;
         </body>
     </view>
 
@@ -16,7 +16,7 @@
         }
         
         /* get index js */
-        $index;
+        $$index;
     </script>
 
     <style>
@@ -26,29 +26,32 @@
         }
 
         /* get index css */
-        $index;
+        $$index;
     </style>
-</index>
+</indexPage>
 
-<contact>
-    <view>
+<contactPage>
+    <contact>$/contact.lgs;</contact>
+     <view>
         <title>Contact</title>
         <body>
             /* get index html */
-            $contact;
+            $$contact;
         </body>
     </view>
 
     /*
         If the style and script tags aren't added,
-        they will automatically get added.
+        the styles and scripts returned by the executed scripts
+        in view will automatically be added.
 
         This behaviour can be overriden by
         adding the tags here and leaving them empty.
     */
-</contact>
 
-<write>
-    <index>index</index>
-    <contact>contact</contact>
-</write>
+</contactPage>
+
+<export>
+    <indexPage>index</indexPage>
+    <contactPage>contact</contactPage>
+</export>

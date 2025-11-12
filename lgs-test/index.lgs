@@ -9,7 +9,7 @@
                 <tr><td>Param 1</td><td>Param 2</td></tr>
             </thead>
             <tbody>
-                <tr><td>$param1;</td><td>$param2;</td></tr>
+                <tr><td>$$param1;</td><td>$$param2;</td></tr>
             </tbody>
         </table>
     </main>

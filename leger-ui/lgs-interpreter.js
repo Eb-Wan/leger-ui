@@ -1,0 +1,144 @@
+import { existsSync, readFileSync } from "fs";
+import { projectDirectory, outputDirectory } from "./leger-ui.js";
+import lgsParser from "./lgs-parser.js";
+import lgsFunctions from "./lgs-functions.js";
+const expressionRegex = /(?<!\\)\$[\$|\/][^;]+;/;
+
+/**
+ * Executes an LGS script
+ * @param {string} path - Path to the script
+ * @returns {object} - Results of the script ({ view, style, script })
+ */
+
+function lgsExecute(path, params = {}) {
+    path = projectDirectory+"/"+path;
+    if (!existsSync(path)) throw new Error(`Script ${path} doesn't exist.`)
+    try {
+        const parsed = lgsParser(readFileSync(path, "utf-8").replaceAll(/\/\*([\s\S]*?)\*\//gm, ""));
+        
+        return executeParsedLgs(parsed);
+        
+        function executeParsedLgs(parsed) {
+            const mem = { exports: {}, ...params };
+            for (const [ key, value ] of Object.entries(parsed)) {
+                const func = lgsFunctions.find(f => f.id == key);
+    
+                if (func && func.func) func.func(value, mem);
+                else if (typeof(value) == "object")mem[key] = executeParsedLgs(parsed[key]);
+                else mem[key] = value;
+            }
+            
+            return {
+                ...mem.exports ?? {},
+                view: mem.view ?? "",
+                style: mem.style ?? "",
+                script: mem.script ?? ""
+            };
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
+/**
+ * Replaces LGS expressions with their results
+ * @param {string} string
+ * @param {object} mem
+ * @param {string} type
+ * @returns {string}
+*/
+
+function lgsInterpolate(string, mem, type) {
+    if (!(type == "view" || type == "style" || type != "script"))
+        type = "view";
+
+    let styleImport = "";
+    let scriptImport = "";
+    let expression = string.match(expressionRegex);
+    while (expression) {
+        let result;
+        expression = parseExpression(expression[0]);
+        if (expression.id == "$$")
+            result = getObjectValue(expression.key, mem);
+        else if (expression.id == "$/") {
+            result = lgsExecute(expression.key, expression.args);
+            styleImport += result.style+"\n";
+            scriptImport += result.script+"\n";
+            result = result[type];
+        }
+        
+        string = string.replaceAll(expression.expression, result);
+        expression = string.match(expressionRegex);
+    }
+    
+    if (type == "view") {
+        if (!mem.style) mem["style"] = styleImport;
+        if (!mem.script) mem["script"] = scriptImport;
+    }
+
+    return string;
+}
+
+function getObjectValue(key, obj) {
+    let value = obj;
+    key = key.split(".");
+    key.forEach(e => value = (typeof(value) == "object" ? value[e] ?? "" : ""));
+    return value;
+}
+
+function parseExpression(expression) {
+    let parsingArgs = false;
+    let identifier = expression.slice(0, 2);
+    let key = "";
+    let args = "";
+    for (let index = 2; index < expression.length - 1; index++) {
+        const current = expression[index];
+        if (parsingArgs) args += current;
+        else {
+            if (current == " ") parsingArgs = true;
+            else key += current;
+        }
+    }
+    return { expression, id: identifier, key: key.trim(), args: parseArgs(args.trim()+";") };
+}
+
+function parseArgs(argString) {
+    if (argString==";") return {};
+    const args = {};
+
+    let depth = 0;
+    let key = "";
+    let value = "";
+    for (let index = 0; index < argString.length; index++) {
+        const current = argString[index];
+        
+        if (depth == 0) key += current;
+        else if (depth > 0) value += current;
+        else throw new Error(`Error while parsing arguments "${argString}".`)
+        if (index+1 >= argString.length) throw new Error(`Error while parsing arguments "${argString}".`);
+        
+        if (argString.slice(index+1, index+3) == "=\"") {
+            if (depth == 0) index+=2;
+            depth++;
+        }
+        if (argString.slice(index+1, index+3) == "\" ") {
+            depth--;
+            if (depth == 0) {
+                args[key.trim()] = value.trim();
+                key = "";
+                value = "";
+                index+=2;
+            }
+        }
+        if (argString.slice(index+1, index+3) == "\";") {
+            depth--;
+            if (depth == 0) {
+                args[key.trim()] = value.trim();
+                if (depth == 0) break;
+            }
+        }
+    }
+    return args;
+}
+
+export { lgsExecute, lgsInterpolate };
