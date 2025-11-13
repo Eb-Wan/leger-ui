@@ -1,13 +1,20 @@
 
 /* Create auto import */
 <indexPage>
-    <index>$/index.lgs param1="p1";</index>
-    <view>
+    <test>
+        <a-var>Yeah that works</a-var>
+        <export><a-var>some-var</a-var></export>
+    </test>
+
+    <index>index.lgs</index>
+    <lang>fr</lang>
+    <head>
         <title>Home</title>
-        <body>
-            /* get index html */
-            $$index;
-        </body>
+    </head>
+    <view>
+        /* get index html */
+        $/$$index; param1="p1" param2="p2" name="$$name;";
+        ($$test.some-var;)
     </view>
 
     <script>
@@ -32,12 +39,10 @@
 
 <contactPage>
     <contact>$/contact.lgs;</contact>
+    <title>Contact</title>
      <view>
-        <title>Contact</title>
-        <body>
-            /* get index html */
-            $$contact;
-        </body>
+        /* get index html */
+        $$contact;
     </view>
 
     /*

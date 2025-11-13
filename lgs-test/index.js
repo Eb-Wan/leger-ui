@@ -1,1 +1,1 @@
-function foo(bar) {return bar;}<main><h1>Home</h1><p>Here is some Leger script for you !</p><table><thead><tr><td>Param 1</td><td>Param 2</td></tr></thead><tbody><tr><td>p1</td><td></td></tr></tbody></table></main>
+function foo(bar) {return bar;}index.lgs

@@ -6,9 +6,7 @@
 
 function parseLgs(lgs) {
     let parsedLgs = {};
-
     let parsingTag = false;
-
     let propertyName = "";
     let propertyValue = "";
 
@@ -31,7 +29,7 @@ function parseLgs(lgs) {
     }
     
     for (const [key, value] of Object.entries(parsedLgs)) {
-        if (key != "view" && key != "script" && key != "style") {
+        if (key != "view" && key != "script" && key != "style" && key != "head" && key != "lang") {
             const parsed = parseLgs(value);
             parsedLgs[key] = Object.keys(parsed).length != 0 ? parsed : value;
         }

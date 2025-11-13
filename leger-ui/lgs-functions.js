@@ -6,6 +6,12 @@ function expor(list, mem) {
         mem.exports[value] = mem[key];
     }
 }
+function lang(lgs, mem) {
+    mem["lang"] = lgsInterpolate(lgs, mem);
+}
+function head(lgs, mem) {
+    mem["head"] = lgsInterpolate(lgs, mem);
+}
 function view(lgs, mem) {
     mem["view"] = lgsInterpolate(lgs, mem, "view");
 }
@@ -18,6 +24,8 @@ function script(lgs, mem) {
 
 const lgsFunctions = [
     { id: "export", func: expor },
+    { id: "lang", func: lang },
+    { id: "head", func: head },
     { id: "view", func: view },
     { id: "style", func: style },
     { id: "script", func: script }

@@ -2,7 +2,6 @@ import { existsSync, readFileSync } from "fs";
 import { projectDirectory, outputDirectory } from "./leger-ui.js";
 import lgsParser from "./lgs-parser.js";
 import lgsFunctions from "./lgs-functions.js";
-const expressionRegex = /(?<!\\)\$[\$|\/][^;]+;/;
 
 /**
  * Executes an LGS script
@@ -18,22 +17,27 @@ function lgsExecute(path, params = {}) {
         
         return executeParsedLgs(parsed);
         
-        function executeParsedLgs(parsed) {
-            const mem = { exports: {}, ...params };
+        function executeParsedLgs(parsed, importedMem = {}) {
+            const mem = { exports: {}, ...params, ...importedMem };
             for (const [ key, value ] of Object.entries(parsed)) {
                 const func = lgsFunctions.find(f => f.id == key);
     
                 if (func && func.func) func.func(value, mem);
-                else if (typeof(value) == "object")mem[key] = executeParsedLgs(parsed[key]);
+                else if (typeof(value) == "object")mem[key] = executeParsedLgs(parsed[key], mem);
                 else mem[key] = value;
             }
             
-            return {
+            const returned = {
                 ...mem.exports ?? {},
                 view: mem.view ?? "",
                 style: mem.style ?? "",
                 script: mem.script ?? ""
-            };
+            }
+
+            if (mem.head) returned["head"] = mem.head;
+            if (mem.lang) returned["lang"] = mem.lang;
+
+            return returned;
         }
     } catch (error) {
         throw error;
@@ -49,26 +53,34 @@ function lgsExecute(path, params = {}) {
 */
 
 function lgsInterpolate(string, mem, type) {
-    if (!(type == "view" || type == "style" || type != "script"))
+    if (!(type == "view" || type == "style" || type == "script"))
         type = "view";
 
     let styleImport = "";
     let scriptImport = "";
-    let expression = string.match(expressionRegex);
+    
+    const varRegex = /(?<!\\)\$\$[^;]+;/;
+    const scriptRegex = /(?<!\\)\$\/[^;]+;/;
+    
+    let expression = string.match(varRegex);
+    while (expression) {
+        expression = parseExpression(expression[0]);
+        string = string.replaceAll(expression.expression, getObjectValue(expression.key, mem));
+        expression = string.match(varRegex);
+    }
+
+    expression = string.match(scriptRegex);
     while (expression) {
         let result;
         expression = parseExpression(expression[0]);
-        if (expression.id == "$$")
-            result = getObjectValue(expression.key, mem);
-        else if (expression.id == "$/") {
-            result = lgsExecute(expression.key, expression.args);
-            styleImport += result.style+"\n";
-            scriptImport += result.script+"\n";
-            result = result[type];
-        }
+
+        result = lgsExecute(expression.key, expression.args);
+        styleImport += result.style+"\n";
+        scriptImport += result.script+"\n";
+        result = result[type];
         
         string = string.replaceAll(expression.expression, result);
-        expression = string.match(expressionRegex);
+        expression = string.match(scriptRegex);
     }
     
     if (type == "view") {
@@ -99,7 +111,7 @@ function parseExpression(expression) {
             else key += current;
         }
     }
-    return { expression, id: identifier, key: key.trim(), args: parseArgs(args.trim()+";") };
+    return { expression, id: identifier, key: key.trim(), args: parseArgs(args.trim()+";"), argsString: args };
 }
 
 function parseArgs(argString) {

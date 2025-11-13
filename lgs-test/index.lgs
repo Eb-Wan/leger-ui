@@ -12,6 +12,7 @@
                 <tr><td>$$param1;</td><td>$$param2;</td></tr>
             </tbody>
         </table>
+        By $$name;
     </main>
 </view>
 
