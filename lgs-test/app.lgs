@@ -38,11 +38,11 @@
 </indexPage>
 
 <contactPage>
-    <contact>$/contact.lgs;</contact>
+    <contact>contact.lgs</contact>
     <title>Contact</title>
-     <view>
+    <view>
         /* get index html */
-        $$contact;
+        $/$$contact; !bind="true";
     </view>
 
     /*

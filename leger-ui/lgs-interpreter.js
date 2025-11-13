@@ -74,7 +74,9 @@ function lgsInterpolate(string, mem, type) {
         let result;
         expression = parseExpression(expression[0]);
 
-        result = lgsExecute(expression.key, expression.args);
+        if (expression.args["!bind"] == "true") result = lgsExecute(expression.key, { ...expression.args, ...mem });
+        else result = lgsExecute(expression.key, expression.args);
+        
         styleImport += result.style+"\n";
         scriptImport += result.script+"\n";
         result = result[type];

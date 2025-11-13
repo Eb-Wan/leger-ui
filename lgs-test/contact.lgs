@@ -11,6 +11,8 @@
         </label>
         <button type="submit">
     </form>
+    <p>This value ($$name;) wasn't supposed to be here... Or is it ?</p>
+    <p>See, to solve a problem (many variables in css for example), you can pass !bind as param and that will bring every variables accessible in the current scope.</p>
 </view>
 
 <script>
