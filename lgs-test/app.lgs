@@ -1,59 +1,21 @@
-
-/* Create auto import */
 <indexPage>
-    <test>
-        <a-var>Yeah that works</a-var>
-        <export><a-var>some-var</a-var></export>
-    </test>
-
     <index>index.lgs</index>
-    <lang>fr</lang>
+
     <head>
         <title>Home</title>
     </head>
     <view>
-        /* get index html */
         $/$$index; param1="p1" param2="p2" name="$$name;";
-        ($$test.some-var;)
     </view>
-
-    <script>
-        function foo(bar) {
-            return bar;
-        }
-        
-        /* get index js */
-        $$index;
-    </script>
-
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-        }
-
-        /* get index css */
-        $$index;
-    </style>
 </indexPage>
 
 <contactPage>
     <contact>contact.lgs</contact>
+
     <title>Contact</title>
     <view>
-        /* get index html */
         $/$$contact; !bind="true";
     </view>
-
-    /*
-        If the style and script tags aren't added,
-        the styles and scripts returned by the executed scripts
-        in view will automatically be added.
-
-        This behaviour can be overriden by
-        adding the tags here and leaving them empty.
-    */
-
 </contactPage>
 
 <export>
