@@ -1,0 +1,8 @@
+<view>
+    <div id="$$id;">
+        <h1>$$name;</h1>
+        <div>$$username;</div>
+        <div>Address :</div>
+        <div>$$address.street;, $$address.suite;, $$address.city;, $$address.zipcode;</div>
+    </div>
+</view>

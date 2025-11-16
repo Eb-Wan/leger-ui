@@ -10,14 +10,12 @@
 <style>
 </style>
 
-<templates>
-    <userCard>userCard</userCard>
-</templates>
-
 <script>
+    const userCard = new LgsTemplate($#components/userCard.lgs);
+
     async function loadUsers() {
         const res = await fetch("https://jsonplaceholder.typicode.com/users");
-        userList.innerHTML = render(userCard, await res.json());
+        userCard.render(await res.json(), document.getElementById("userList"));
     }
 
     loadUsers();
