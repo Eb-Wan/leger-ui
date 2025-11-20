@@ -1,8 +1,8 @@
 <view>
     <main>
-        <h1>
-            Home
-        </h1>
+        <h1>Home</h1>
+        <button onclick="toggleIndex">Toggle index</button>
+        <section id="index"></section>
         <section id="userList"></section>
     </main>
 </view>
@@ -10,12 +10,24 @@
 <style>
 </style>
 
-<script>
-    const userCard = new LgsTemplate($#components/userCard.lgs);
+<import>
+    <Component>Component</Component>
+</import>
 
-    async function loadUsers() {
+<script>
+    const userCard = new Component("components/userCard.lgs");
+    const pageIndex = new Component("components/pageIndex.html");
+
+    let indexState = false;
+    function toggleIndex() {
+        indexState != indexState;
+        if (indexState) pageIndex.render(document.getElementById("index"));
+        else index.innerHTML = "";
+    }
+
+    function loadUsers() {
         const res = await fetch("https://jsonplaceholder.typicode.com/users");
-        userCard.render(await res.json(), document.getElementById("userList"));
+        userCard.render(document.getElementById("userList"), await res.json());
     }
 
     loadUsers();

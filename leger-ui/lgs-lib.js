@@ -1,17 +1,37 @@
-class LgsTemplate {
-    template = "";
-
-    constructor(template) {
-        this.template = template;
+class Component {
+    url = "";
+    
+    constructor(url) {
+        this.url = url;
     }
-
-    render(params) {
-        if (typeof(params) != "object") throw new Error("Typeof render params must be object");
-        if (Array.isArray(params)) return params.map(p => this.#lgsInterpolate(p));
-        else return this.#lgsInterpolate(params);
+    async render(target, params) {
+        try {
+            const res = await fetch(url);
+            if (!res.ok) this.#handleErr(res);
+            _execLgs(await res.body(), params);
+        } catch (error) {
+            console.log("Failed to render component : "+error.message);
+        }
     }
+    #handleErr(res) {
+        console.log("Failed to render component");
+    }
+}
 
-    #lgsInterpolate(params) {
+const _fetch = async () => {
+    
+}
+
+const _replaceNode = () => {
+
+}
+
+const _execLgs = async (lgs, params) => {
+    if (typeof(params) != "object") throw new Error("Typeof render params must be object");
+    if (Array.isArray(params)) return params.map(p => lgsInterpolate(lgs, p));
+    else return lgsInterpolate(lgs, params);
+
+    function lgsInterpolate(string, params) {
         if (typeof(params) != "object") throw new Error("Typeof render params must be object");
 
         let styleImport = "";
@@ -22,8 +42,8 @@ class LgsTemplate {
         
         let expression = string.match(varRegex);
         while (expression) {
-            expression = this.#parseExpression(expression[0]);
-            string = string.replaceAll(expression.expression, this.#getObjectValue(expression.key, params));
+            expression = parseExpression(expression[0]);
+            string = string.replaceAll(expression.expression, getObjectValue(expression.key, params));
             expression = string.match(varRegex);
         }
     
@@ -46,14 +66,14 @@ class LgsTemplate {
         return string;
     }
 
-    #getObjectValue(key, obj) {
+    function getObjectValue(key, obj) {
         let value = obj;
         key = key.split(".");
         key.forEach(e => value = (typeof(value) == "object" ? value[e] ?? "" : ""));
         return value;
     }
 
-    #parseExpression(expression) {
+    function parseExpression(expression) {
         let parsingArgs = false;
         let identifier = expression.slice(0, 2);
         let key = "";
@@ -66,10 +86,10 @@ class LgsTemplate {
                 else key += current;
             }
         }
-        return { expression, id: identifier, key: key.trim(), args: this.#parseArgs(args.trim()+";"), argsString: args };
+        return { expression, id: identifier, key: key.trim(), args: parseArgs(args.trim()+";"), argsString: args };
     }
 
-    #parseArgs(argString) {
+    function parseArgs(argString) {
         if (argString==";") return {};
         const args = {};
 
