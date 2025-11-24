@@ -8,7 +8,7 @@ class Component {
         try {
             const res = await fetch(url);
             if (!res.ok) this.#handleErr(res);
-            _execLgs(await res.body(), params);
+            target.innerHTML = _execLgs(await res.body(), params).replaceAll(/.*script.*/img, "p");
         } catch (error) {
             console.log("Failed to render component : "+error.message);
         }

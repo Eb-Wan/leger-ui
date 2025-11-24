@@ -11,8 +11,10 @@
 
 <contactPage>
     <contact>contact.lgs</contact>
-
-    <title>Contact</title>
+    
+    <head>
+        <title>Contact</title>
+    </head>
     <view>
         $/$$contact; !bind="true";
     </view>
@@ -20,5 +22,6 @@
 
 <export>
     <indexPage>index</indexPage>
+    <contactPage>contact</contactPage>
     <contactPage>contact</contactPage>
 </export>

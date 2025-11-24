@@ -27,6 +27,7 @@ try {
     const results = lgsExecute(basename(parsed.flaggedArgs["-i"]), params);
 
     for (const [ key, value ] of Object.entries(results)) {
+        if (key == "exports") continue;
         const regex = /(\s)\1+|\n/gm;
         if (value.style) writeFileSync(`${outputDirectory}/${key}.css`, value.style.replaceAll(regex, ""));
         if (value.script) writeFileSync(`${outputDirectory}/${key}.js`, value.script.replaceAll(regex, ""));

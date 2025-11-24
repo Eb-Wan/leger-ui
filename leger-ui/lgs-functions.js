@@ -7,19 +7,19 @@ function expor(list, mem) {
     }
 }
 function lang(lgs, mem) {
-    mem["lang"] = lgsInterpolate(lgs, mem);
+    mem["exports"]["lang"] = lgsInterpolate(lgs, mem);
 }
 function head(lgs, mem) {
-    mem["head"] = lgsInterpolate(lgs, mem);
+    mem["exports"]["head"] = lgsInterpolate(lgs, mem);
 }
 function view(lgs, mem) {
-    mem["view"] = lgsInterpolate(lgs, mem, "view");
+    mem["exports"]["view"] = lgsInterpolate(lgs, mem, "view");
 }
 function style(lgs, mem) {
-    mem["style"] = lgsInterpolate(lgs, mem, "style");
+    mem["exports"]["style"] = lgsInterpolate(lgs, mem, "style");
 }
 function script(lgs, mem) {
-    mem["script"] = lgsInterpolate(lgs, mem, "script");
+    mem["exports"]["script"] = lgsInterpolate(lgs, mem, "script");
 }
 
 const lgsFunctions = [

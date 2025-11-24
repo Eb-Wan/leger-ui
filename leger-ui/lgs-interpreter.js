@@ -29,13 +29,14 @@ function lgsExecute(path, params = {}) {
             
             const returned = {
                 ...mem.exports ?? {},
-                view: mem.view ?? "",
-                style: mem.style ?? "",
-                script: mem.script ?? ""
+                exports: {
+                    view: mem.exports.view ?? {},
+                    style: mem.exports.style ?? {},
+                    script: mem.exports.script ?? {},
+                    head: mem.exports.head ?? {},
+                    lang: mem.exports.lang ?? {}
+                }
             }
-
-            if (mem.head) returned["head"] = mem.head;
-            if (mem.lang) returned["lang"] = mem.lang;
 
             return returned;
         }
@@ -86,8 +87,8 @@ function lgsInterpolate(string, mem, type) {
     }
     
     if (type == "view") {
-        if (!mem.style) mem["style"] = styleImport;
-        if (!mem.script) mem["script"] = scriptImport;
+        if (!mem.exports.style) mem["exports"]["style"] = styleImport;
+        if (!mem.exports.script) mem["exports"]["script"] = scriptImport;
     }
 
     return string;

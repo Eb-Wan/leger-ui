@@ -1,1 +1,1 @@
-function foo(bar) {return bar;}index.lgs
+const userCard = new Component("components/userCard.lgs");const pageIndex = new Component("components/pageIndex.html");let indexState = false;function toggleIndex() {indexState != indexState;if (indexState) pageIndex.render(document.getElementById("index"));else index.innerHTML = "";}function loadUsers() {const res = await fetch("https://jsonplaceholder.typicode.com/users");userCard.render(document.getElementById("userList"), await res.json());}loadUsers();
