@@ -6,3 +6,5 @@
         <div>$$address.street;, $$address.suite;, $$address.city;, $$address.zipcode;</div>
     </div>
 </view>
+<style>
+</style>

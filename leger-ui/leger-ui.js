@@ -1,4 +1,4 @@
-import { existsSync, writeFileSync } from "fs";
+import { existsSync, writeFileSync, copyFileSync, mkdirSync } from "fs";
 import { dirname, basename } from "path";
 import { lgsExecute } from "./lgs-interpreter.js";
 
@@ -27,7 +27,7 @@ try {
     const results = lgsExecute(basename(parsed.flaggedArgs["-i"]), params);
 
     for (const [ key, value ] of Object.entries(results)) {
-        if (key == "exports") continue;
+        if (key == "exports" || key == "globals" || typeof(value) != "object") continue;
         const regex = /(\s)\1+|\n/gm;
         if (value.style) writeFileSync(`${outputDirectory}/${key}.css`, value.style.replaceAll(regex, ""));
         if (value.script) writeFileSync(`${outputDirectory}/${key}.js`, value.script.replaceAll(regex, ""));
@@ -39,6 +39,20 @@ try {
             const html = `<!DOCTYPE html><html lang="${lang}"><head>${head}${styleImport}${scriptImport}</head><body>${value.view}</body></html>`
             writeFileSync(`${outputDirectory}/${key}.html`, html.replaceAll(regex, ""));
         }
+        // if (value.copies) {
+        //     for (const [ key, value ] of Object.entries(value.copies)) {
+        //         const path = value.split("/");
+        //         const file = path.pop();
+        //         let tested = "";
+        //         path.forEach(d => {
+        //             if (d) {
+        //                 tested += d+"/";
+        //                 if (!existsSync(projectDirectory+"/"+tested)) mkdirSync(projectDirectory+"/"+tested);
+        //             }
+        //         });
+        //         copyFileSync(projectDirectory+"/"+value, outputDirectory+"/"+tested+file);
+        //     }
+        // }
     }
 
     exitFinished();

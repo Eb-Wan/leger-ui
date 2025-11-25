@@ -1,34 +1,53 @@
 import { lgsInterpolate } from "./lgs-interpreter.js";
 
-function expor(list, mem) {
+function localExport(list, mem) {
     if (typeof(list) != "object") throw new Error("Export can only contain tags");
     for (const [ key, value ] of Object.entries(list)) {
-        mem.exports[value] = mem[key];
+        mem.exports[key] = mem[value];
+    }
+}
+function globalExport(list, mem) {
+    if (typeof(list) != "object") throw new Error("Global can only contain tags");
+    for (const [ key, value ] of Object.entries(list)) {
+        mem.globals[key] = mem[value];
+    }
+}
+function importLgs(list, mem) {
+    if (typeof(list) != "object") throw new Error("Import can only contain tags");
+    for (const [ key, value ] of Object.entries(list)) {
+        if (!mem.globals.imports) mem.globals.imports = {};
+        if (!mem.globals.imports[key]) mem.globals.imports[key] = value;
     }
 }
 function lang(lgs, mem) {
-    mem["exports"]["lang"] = lgsInterpolate(lgs, mem);
+    mem["globals"]["lang"] = lgsInterpolate(lgs, mem);
 }
 function head(lgs, mem) {
-    mem["exports"]["head"] = lgsInterpolate(lgs, mem);
+    mem["globals"]["head"] = lgsInterpolate(lgs, mem);
 }
 function view(lgs, mem) {
-    mem["exports"]["view"] = lgsInterpolate(lgs, mem, "view");
+    mem["globals"]["view"] = lgsInterpolate(lgs, mem, "view");
 }
 function style(lgs, mem) {
-    mem["exports"]["style"] = lgsInterpolate(lgs, mem, "style");
+    mem["globals"]["style"] = lgsInterpolate(lgs, mem, "style");
 }
 function script(lgs, mem) {
-    mem["exports"]["script"] = lgsInterpolate(lgs, mem, "script");
+    mem["globals"]["script"] = lgsInterpolate(lgs, mem, "script");
+}
+function exportFile(lgs, mem) {
+    mem["globals"]["copies"] = lgs.value;
 }
 
 const lgsFunctions = [
-    { id: "export", func: expor },
+    { id: "export", func: localExport },
+    { id: "global", func: globalExport },
+    { id: "import", func: importLgs },
     { id: "lang", func: lang },
     { id: "head", func: head },
     { id: "view", func: view },
     { id: "style", func: style },
-    { id: "script", func: script }
+    { id: "script", func: script },
+    { id: "copy", func: exportFile }
 ];
 
 export default lgsFunctions;

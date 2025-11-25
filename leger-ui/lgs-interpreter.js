@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "fs";
 import { projectDirectory, outputDirectory } from "./leger-ui.js";
-import lgsParser from "./lgs-parser.js";
+import { lgsParser } from "./lgs-parsers.js";
 import lgsFunctions from "./lgs-functions.js";
 
 /**
@@ -14,11 +14,11 @@ function lgsExecute(path, params = {}) {
     if (!existsSync(path)) throw new Error(`Script ${path} doesn't exist.`)
     try {
         const parsed = lgsParser(readFileSync(path, "utf-8").replaceAll(/\/\*([\s\S]*?)\*\//gm, ""));
-        
+
         return executeParsedLgs(parsed);
         
         function executeParsedLgs(parsed, importedMem = {}) {
-            const mem = { exports: {}, ...params, ...importedMem };
+            const mem = { exports: {}, globals: {}, ...params, ...importedMem };
             for (const [ key, value ] of Object.entries(parsed)) {
                 const func = lgsFunctions.find(f => f.id == key);
     
@@ -29,13 +29,9 @@ function lgsExecute(path, params = {}) {
             
             const returned = {
                 ...mem.exports ?? {},
-                exports: {
-                    view: mem.exports.view ?? {},
-                    style: mem.exports.style ?? {},
-                    script: mem.exports.script ?? {},
-                    head: mem.exports.head ?? {},
-                    lang: mem.exports.lang ?? {}
-                }
+                ...mem.globals ?? {},
+                exports: {},
+                globals: { ...mem.globals ?? {} }
             }
 
             return returned;
@@ -57,12 +53,13 @@ function lgsInterpolate(string, mem, type) {
     if (!(type == "view" || type == "style" || type == "script"))
         type = "view";
 
-    let styleImport = "";
-    let scriptImport = "";
-    
     const varRegex = /(?<!\\)\$\$[^;]+;/;
     const scriptRegex = /(?<!\\)\$\/[^;]+;/;
+
+    let styleImported = "";
+    let scriptImported = ""
     
+    // replace props ($$var;)
     let expression = string.match(varRegex);
     while (expression) {
         expression = parseExpression(expression[0]);
@@ -70,26 +67,36 @@ function lgsInterpolate(string, mem, type) {
         expression = string.match(varRegex);
     }
 
+    // replace scripts ($/script;)
     expression = string.match(scriptRegex);
     while (expression) {
         let result;
         expression = parseExpression(expression[0]);
 
-        if (expression.args["!bind"] == "true") result = lgsExecute(expression.key, { ...expression.args, ...mem });
-        else result = lgsExecute(expression.key, expression.args);
+        const imports = mem.globals.imports ?? {};
+        const path = imports[expression.key];
+        if (!path) throw new Error(`Call to non-imported script "${expression.key}".`);
+
+        if (expression.args["!bind"] == "true") result = lgsExecute(path, { ...expression.args, ...mem });
+        else result = lgsExecute(path, expression.args);
         
-        styleImport += result.style+"\n";
-        scriptImport += result.script+"\n";
+        styleImported += result.style+"\n";
+        scriptImported += result.script+"\n";
         result = result[type];
         
         string = string.replaceAll(expression.expression, result);
         expression = string.match(scriptRegex);
     }
-    
+
+    // automatically add css and js if nothing is present
     if (type == "view") {
-        if (!mem.exports.style) mem["exports"]["style"] = styleImport;
-        if (!mem.exports.script) mem["exports"]["script"] = scriptImport;
+        if (!mem.exports.style) mem["exports"]["style"] = styleImported;
+        if (!mem.exports.script) mem["exports"]["script"] = scriptImported;
     }
+    
+    // for (const [ key, value ] of Object.entries(mem.globals)) {
+    //     if (!mem.globals[key]) mem.globals[key] = value;
+    // }
 
     return string;
 }

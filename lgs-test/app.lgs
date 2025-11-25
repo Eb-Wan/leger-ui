@@ -1,27 +1,27 @@
-<indexPage>
+<import>
     <index>index.lgs</index>
+    <contact>contact.lgs</contact>
+</import>
 
+<index>
     <head>
         <title>Home</title>
     </head>
     <view>
-        $/$$index; param1="p1" param2="p2" name="$$name;";
+        $/index;
     </view>
-</indexPage>
+</index>
 
-<contactPage>
-    <contact>contact.lgs</contact>
-    
+<contact>
     <head>
         <title>Contact</title>
     </head>
     <view>
-        $/$$contact; !bind="true";
+        $/contact;
     </view>
-</contactPage>
+</contact>
 
 <export>
-    <indexPage>index</indexPage>
-    <contactPage>contact</contactPage>
-    <contactPage>contact</contactPage>
+    <index>index</index>
+    <contact>contact</contact>
 </export>
