@@ -34,9 +34,6 @@ function style(lgs, mem) {
 function script(lgs, mem) {
     mem["globals"]["script"] = lgsInterpolate(lgs, mem, "script");
 }
-function exportFile(lgs, mem) {
-    mem["globals"]["copies"] = lgs.value;
-}
 
 const lgsFunctions = [
     { id: "export", func: localExport },
@@ -46,8 +43,7 @@ const lgsFunctions = [
     { id: "head", func: head },
     { id: "view", func: view },
     { id: "style", func: style },
-    { id: "script", func: script },
-    { id: "copy", func: exportFile }
+    { id: "script", func: script }
 ];
 
 export default lgsFunctions;

@@ -1,4 +1,4 @@
-import { existsSync, writeFileSync, copyFileSync, mkdirSync } from "fs";
+import { existsSync, writeFileSync, readFileSync, cpSync } from "fs";
 import { dirname, basename } from "path";
 import { lgsExecute } from "./lgs-interpreter.js";
 
@@ -20,17 +20,23 @@ if (parsed.flaggedArgs["-o"] && !existsSync(parsed.flaggedArgs["-o"])) {
 }
 
 const params = { ...JSON.parse(parsed.flaggedArgs["-a"] ? parsed.flaggedArgs["-a"] : "{}") };
+const compilerDir = dirname(process.argv[1]);
 const projectDirectory = dirname(parsed.flaggedArgs["-i"]);
 const outputDirectory = parsed.flaggedArgs["-o"] ? parsed.flaggedArgs["-o"] : dirname(parsed.flaggedArgs["-i"]);
 
 try {
     const results = lgsExecute(basename(parsed.flaggedArgs["-i"]), params);
 
+    if (outputDirectory != projectDirectory) cpSync(projectDirectory, outputDirectory, { recursive: true });
+
     for (const [ key, value ] of Object.entries(results)) {
         if (key == "exports" || key == "globals" || typeof(value) != "object") continue;
         const regex = /(\s)\1+|\n/gm;
         if (value.style) writeFileSync(`${outputDirectory}/${key}.css`, value.style.replaceAll(regex, ""));
-        if (value.script) writeFileSync(`${outputDirectory}/${key}.js`, value.script.replaceAll(regex, ""));
+        if (value.script) {
+            value.script = readFileSync(compilerDir+"/lgs-lib.js", "utf-8") + value.script;
+            writeFileSync(`${outputDirectory}/${key}.js`, value.script);
+        }
         if (value.view) {
             const lang = value.lang ? value.lang : "en";
             const head = value.head ? value.head : "";
@@ -39,20 +45,6 @@ try {
             const html = `<!DOCTYPE html><html lang="${lang}"><head>${head}${styleImport}${scriptImport}</head><body>${value.view}</body></html>`
             writeFileSync(`${outputDirectory}/${key}.html`, html.replaceAll(regex, ""));
         }
-        // if (value.copies) {
-        //     for (const [ key, value ] of Object.entries(value.copies)) {
-        //         const path = value.split("/");
-        //         const file = path.pop();
-        //         let tested = "";
-        //         path.forEach(d => {
-        //             if (d) {
-        //                 tested += d+"/";
-        //                 if (!existsSync(projectDirectory+"/"+tested)) mkdirSync(projectDirectory+"/"+tested);
-        //             }
-        //         });
-        //         copyFileSync(projectDirectory+"/"+value, outputDirectory+"/"+tested+file);
-        //     }
-        // }
     }
 
     exitFinished();

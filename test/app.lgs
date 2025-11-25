@@ -1,0 +1,27 @@
+<import>
+    <index>index.lgs</index>
+    <contact>contact.lgs</contact>
+</import>
+
+<index>
+    <head>
+        <title>Home</title>
+    </head>
+    <view>
+        $/index;
+    </view>
+</index>
+
+<contact>
+    <head>
+        <title>Contact</title>
+    </head>
+    <view>
+        $/contact;
+    </view>
+</contact>
+
+<export>
+    <index>index</index>
+    <contact>contact</contact>
+</export>
