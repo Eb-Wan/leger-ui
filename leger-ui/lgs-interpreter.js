@@ -11,14 +11,15 @@ import lgsFunctions from "./lgs-functions.js";
 
 function lgsExecute(path, params = {}) {
     path = projectDirectory+"/"+path;
+    
     if (!existsSync(path)) throw new Error(`Script ${path} doesn't exist.`)
     try {
         const parsed = lgsParser(readFileSync(path, "utf-8").replaceAll(/\/\*([\s\S]*?)\*\//gm, ""));
-
-        return executeParsedLgs(parsed);
+    
+        return executeParsedLgs(parsed, params);
         
-        function executeParsedLgs(parsed, importedMem = {}) {
-            const mem = { exports: {}, globals: {}, ...params, ...importedMem };
+        function executeParsedLgs(parsed, params = {}) {
+            const mem = { exports: {}, globals: {}, ...params };
             for (const [ key, value ] of Object.entries(parsed)) {
                 const func = lgsFunctions.find(f => f.id == key);
     
@@ -52,115 +53,136 @@ function lgsExecute(path, params = {}) {
 function lgsInterpolate(string, mem, type) {
     if (!(type == "view" || type == "style" || type == "script"))
         type = "view";
-
-    const varRegex = /(?<!\\)\$\$[^;]+;/;
-    const scriptRegex = /(?<!\\)\$\/[^;]+;/;
-
+    
     let styleImported = "";
     let scriptImported = ""
     
     // replace props ($$var;)
-    let expression = string.match(varRegex);
+    let expression = findPropsExpression(string);
     while (expression) {
-        expression = parseExpression(expression[0]);
-        string = string.replaceAll(expression.expression, getObjectValue(expression.key, mem));
-        expression = string.match(varRegex);
+        expression = parseExpression(expression);
+        string = string.replaceAll(expression.expression, getObjectValue(expression.key, mem) ?? "");
+        expression = findPropsExpression(string);
     }
-
+    
     // replace scripts ($/script;)
-    expression = string.match(scriptRegex);
+    expression = findScriptExpression(string);
     while (expression) {
         let result;
-        expression = parseExpression(expression[0]);
+        expression = parseExpression(expression);
 
         const imports = mem.globals.imports ?? {};
         const path = imports[expression.key];
         if (!path) throw new Error(`Call to non-imported script "${expression.key}".`);
 
         if (expression.args["!bind"] == "true") result = lgsExecute(path, { ...expression.args, ...mem });
-        else result = lgsExecute(path, expression.args);
+        else result = lgsExecute(path, { ...expression.args, globals: {...mem.globals}, ...mem.globals });
         
-        styleImported += result.style+"\n";
-        scriptImported += result.script+"\n";
+        styleImported += result.style ?? "" +"\n";
+        scriptImported += result.script ?? "" +"\n";
         result = result[type];
-        
-        string = string.replaceAll(expression.expression, result);
-        expression = string.match(scriptRegex);
+        string = string.replaceAll(expression.expression, result ?? "");
+        expression = findScriptExpression(string);
     }
 
     // automatically add css and js if nothing is present
     if (type == "view") {
         if (!mem.exports.style) mem["exports"]["style"] = styleImported;
         if (!mem.exports.script) mem["exports"]["script"] = scriptImported;
+        console.log(styleImported)
     }
-    
-    // for (const [ key, value ] of Object.entries(mem.globals)) {
-    //     if (!mem.globals[key]) mem.globals[key] = value;
-    // }
 
     return string;
-}
-
-function getObjectValue(key, obj) {
-    let value = obj;
-    key = key.split(".");
-    key.forEach(e => value = (typeof(value) == "object" ? value[e] ?? "" : ""));
-    return value;
-}
-
-function parseExpression(expression) {
-    let parsingArgs = false;
-    let identifier = expression.slice(0, 2);
-    let key = "";
-    let args = "";
-    for (let index = 2; index < expression.length - 1; index++) {
-        const current = expression[index];
-        if (parsingArgs) args += current;
-        else {
-            if (current == " ") parsingArgs = true;
-            else key += current;
-        }
+    
+    function findPropsExpression(string) {
+        return extractExpression(string, /(?<!\\)\$\$/);
     }
-    return { expression, id: identifier, key: key.trim(), args: parseArgs(args.trim()+";"), argsString: args };
-}
-
-function parseArgs(argString) {
-    if (argString==";") return {};
-    const args = {};
-
-    let depth = 0;
-    let key = "";
-    let value = "";
-    for (let index = 0; index < argString.length; index++) {
-        const current = argString[index];
+    
+    function findScriptExpression(string) {
+        return extractExpression(string, /(?<!\\)\$\//);
+    }
+    function extractExpression(string, regex) {
+        let index = string.search(regex);
+        if (index == -1) return "";
         
-        if (depth == 0) key += current;
-        else if (depth > 0) value += current;
-        else throw new Error(`Error while parsing arguments "${argString}".`)
-        if (index+1 >= argString.length) throw new Error(`Error while parsing arguments "${argString}".`);
-        
-        if (argString.slice(index+1, index+3) == "=\"") {
-            if (depth == 0) index+=2;
-            depth++;
-        }
-        if (argString.slice(index+1, index+3) == "\" ") {
-            depth--;
-            if (depth == 0) {
-                args[key.trim()] = value.trim();
-                key = "";
-                value = "";
-                index+=2;
+        let extracted = "";
+        let depth = 0;
+        for (let i = 0; i < string.length; i++) {
+            const current = string[index];
+            extracted += current;
+            index++;
+            
+            if (string.slice(index, index+2).match(regex)) depth++;
+            if (current == ";"){
+                if(depth <= 0) return extracted;
+                else depth--;
             }
         }
-        if (argString.slice(index+1, index+3) == "\";") {
-            depth--;
-            if (depth == 0) {
-                args[key.trim()] = value.trim();
-                if (depth == 0) break;
+        throw new Error("Missing semi-colon !");
+    }
+    
+    function getObjectValue(key, obj) {
+        let value = obj;
+        key = key.split(".");
+        key.forEach(e => value = (typeof(value) == "object" ? value[e] ?? "" : ""));
+        return value;
+    }
+    
+    function parseExpression(expression) {
+        let parsingArgs = false;
+        let identifier = expression.slice(0, 2);
+        let key = "";
+        let args = "";
+        for (let index = 2; index < expression.length - 1; index++) {
+            const current = expression[index];
+            if (parsingArgs) args += current;
+            else {
+                if (current == " ") parsingArgs = true;
+                else key += current;
             }
         }
+        return { expression, id: identifier, key: key.trim(), args: parseArgs(args.trim()+";"), argsString: args };
     }
-    return args;
+    
+    function parseArgs(argString) {
+        if (argString==";") return {};
+        const args = {};
+    
+        let depth = 0;
+        let key = "";
+        let value = "";
+        for (let index = 0; index < argString.length; index++) {
+            const current = argString[index];
+            
+            if (depth == 0) key += current;
+            else if (depth > 0) value += current;
+            else throw new Error(`Error while parsing arguments "${argString}".`)
+            
+            if (index+1 >= argString.length) throw new Error(`Error while parsing arguments "${argString}".`);
+            
+            if (argString.slice(index+1, index+3) == "=\"") {
+                if (depth == 0) index+=2;
+                depth++;
+            }
+            if (argString.slice(index+1, index+3) == "\" ") {
+                depth--;
+                if (depth == 0) {
+                    args[key.trim()] = value.trim();
+                    key = "";
+                    value = "";
+                    index+=2;
+                }
+            }
+            if (argString.slice(index+1, index+3) == "\";") {
+                depth--;
+                if (depth == 0) {
+                    args[key.trim()] = value.trim();
+                    if (depth == 0) break;
+                }
+            }
+        }
+        return args;
+    }
 }
 
 export { lgsExecute, lgsInterpolate };

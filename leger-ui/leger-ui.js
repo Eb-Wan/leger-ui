@@ -2,31 +2,31 @@ import { existsSync, writeFileSync, readFileSync, cpSync } from "fs";
 import { dirname, basename } from "path";
 import { lgsExecute } from "./lgs-interpreter.js";
 
-const parsed = parseArgs(process.argv);
+const parsedArgs = parseArgs(process.argv);
 
-if (parsed.flags.includes("-h") | parsed.flags.includes("--help")) {
+if (parsedArgs.flags.includes("-h") | parsedArgs.flags.includes("--help")) {
     console.log("-h, --help, -i /path/to/entry.lgs, -o /path/to/output/folder, -a '{ prop: \"prop\" }'")
     process.exit(0);
 }
 
-if (!parsed.flaggedArgs["-i"]) exitError("No entry script given.");
-if (!parsed.flaggedArgs["-i"].includes(".lgs") ||
-    !existsSync(parsed.flaggedArgs["-i"])) {
+if (!parsedArgs.flaggedArgs["-i"]) exitError("No entry script given.");
+if (!parsedArgs.flaggedArgs["-i"].includes(".lgs") ||
+    !existsSync(parsedArgs.flaggedArgs["-i"])) {
     exitError("Must be a path to an leger script file (lgs).");
 }
     
-if (parsed.flaggedArgs["-o"] && !existsSync(parsed.flaggedArgs["-o"])) {
+if (parsedArgs.flaggedArgs["-o"] && !existsSync(parsedArgs.flaggedArgs["-o"])) {
     exitError("Output directory doesn't exists.");
 }
 
-const params = { ...JSON.parse(parsed.flaggedArgs["-a"] ? parsed.flaggedArgs["-a"] : "{}") };
+const params = { ...JSON.parse(parsedArgs.flaggedArgs["-a"] ? parsedArgs.flaggedArgs["-a"] : "{}") };
 const compilerDir = dirname(process.argv[1]);
-const projectDirectory = dirname(parsed.flaggedArgs["-i"]);
-const outputDirectory = parsed.flaggedArgs["-o"] ? parsed.flaggedArgs["-o"] : dirname(parsed.flaggedArgs["-i"]);
+const projectDirectory = dirname(parsedArgs.flaggedArgs["-i"]);
+const outputDirectory = parsedArgs.flaggedArgs["-o"] ? parsedArgs.flaggedArgs["-o"] : dirname(parsedArgs.flaggedArgs["-i"]);
 
 try {
-    const results = lgsExecute(basename(parsed.flaggedArgs["-i"]), params);
-
+    const results = lgsExecute(basename(parsedArgs.flaggedArgs["-i"]), params);
+    if (parsedArgs.flags.includes("-v")) console.log(results);
     if (outputDirectory != projectDirectory) cpSync(projectDirectory, outputDirectory, { recursive: true });
 
     for (const [ key, value ] of Object.entries(results)) {
@@ -53,7 +53,7 @@ try {
 }
 
 function exitFinished() {
-    console.log(`\nLEGER-COMPILER : Done executing ${parsed.flaggedArgs["-i"]} !`)
+    console.log(`\nLEGER-COMPILER : Done executing ${parsedArgs.flaggedArgs["-i"]} !`)
     process.exit(0);
 }
 function exitError(message, error) {
