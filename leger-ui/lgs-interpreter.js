@@ -19,7 +19,7 @@ function lgsExecute(path, params = {}) {
         return executeParsedLgs(parsed, params);
         
         function executeParsedLgs(parsed, params = {}) {
-            const mem = { exports: {}, globals: {}, ...params };
+            const mem = { exports: {}, globals: {}, ...structuredClone(params) };
             for (const [ key, value ] of Object.entries(parsed)) {
                 const func = lgsFunctions.find(f => f.id == key);
     
@@ -51,9 +51,6 @@ function lgsExecute(path, params = {}) {
 */
 
 function lgsInterpolate(string, mem, type) {
-    if (!(type == "view" || type == "style" || type == "script"))
-        type = "view";
-    
     let styleImported = "";
     let scriptImported = ""
     
@@ -76,7 +73,7 @@ function lgsInterpolate(string, mem, type) {
         if (!path) throw new Error(`Call to non-imported script "${expression.key}".`);
 
         if (expression.args["!bind"] == "true") result = lgsExecute(path, { ...expression.args, ...mem });
-        else result = lgsExecute(path, { ...expression.args, globals: {...mem.globals}, ...mem.globals });
+        else result = lgsExecute(path, { ...expression.args, globals: mem.globals, ...mem.globals });
         
         styleImported += result.style ?? "" +"\n";
         scriptImported += result.script ?? "" +"\n";
@@ -89,7 +86,6 @@ function lgsInterpolate(string, mem, type) {
     if (type == "view") {
         if (!mem.exports.style) mem["exports"]["style"] = styleImported;
         if (!mem.exports.script) mem["exports"]["script"] = scriptImported;
-        console.log(styleImported)
     }
 
     return string;

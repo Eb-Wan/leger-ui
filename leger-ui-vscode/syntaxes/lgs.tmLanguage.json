@@ -1,16 +1,20 @@
 {
-  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-  "name": "sitecom-function",
+  "name": "Leger Script",
   "scopeName": "source.lgs",
+  "fileTypes": [
+    "lgs"
+  ],
   "patterns": [
     { "include": "#comment" },
-    { "include": "#lgs-function" },
-    { "include": "#lgs-procedure" },
-    { "include": "#lgs-param" },
-    { "include": "#lgs-global-param" },
-    { "include": "#lgs-command" },
-    { "include": "#tag" },
-    { "include": "#entity" }
+    { "include": "#template-view" },
+    { "include": "#template-head" },
+    { "include": "#template-style" },
+    { "include": "#template-script" },
+    { "include": "#template-lang" },
+    { "include": "#template-template" },
+    { "include": "#command-tag" },
+    { "include": "#var-tag" },
+    { "include": "#placeholders" }
   ],
   "repository": {
     "comment": {
@@ -22,106 +26,48 @@
         }
       ]
     },
-    "lgs-function": {
+
+    "placeholders": {
       "patterns": [
         {
-          "name": "meta.lgs-expression.lgs",
-          "begin": "(\\$\\.)([a-zA-Z_][a-zA-Z0-9_]*)",
-          "beginCaptures": {
-                "1": { "name": "keyword.lgs-identifier.lgs" },
-                "2": { "name": "constant.character.lgs" }
-          },
-          "end": ";",
-          "patterns": [
-            { "include": "#attribute" }
-          ]
+          "include": "#placeholder-dollar"
+        },
+        {
+          "include": "#placeholder-slash"
         }
       ]
     },
-    "lgs-procedure": {
+
+    "placeholder-dollar": {
       "patterns": [
         {
-          "name": "meta.lgs-expression.lgs",
-          "begin": "(\\$\\!)([a-zA-Z_][a-zA-Z0-9_]*)",
-          "beginCaptures": {
-                "1": { "name": "keyword.lgs-identifier.lgs" },
-                "2": { "name": "entity.name.function.lgs" }
-          },
-          "end": ";",
-          "patterns": [
-            { "include": "#attribute" }
-          ]
-        }
-      ]
-    },
-    "lgs-param": {
-      "patterns": [
-        {
-          "name": "meta.lgs-expression.lgs",
-          "begin": "(\\$\\$)([a-zA-Z_][a-zA-Z0-9_]*)",
-          "beginCaptures": {
-                "1": { "name": "keyword.lgs-identifier.lgs" },
-                "2": { "name": "support.variable.lgs" }
-          },
-          "end": ";",
-          "patterns": [
-            { "include": "#attribute" }
-          ]
-        }
-      ]
-    },
-    "lgs-global-param": {
-      "patterns": [
-        {
-          "name": "meta.lgs-expression.lgs",
-          "begin": "(\\$\\%)([a-zA-Z_][a-zA-Z0-9_]*)",
+          "name": "meta.placeholder.var.lgs",
+          "begin": "(\\$\\$)([a-zA-Z_-][a-zA-Z0-9_-]*)",
           "beginCaptures": {
                 "1": { "name": "keyword.lgs-identifier.lgs" },
                 "2": { "name": "support.class.lgs" }
           },
           "end": ";",
           "patterns": [
+            { "include": "#comment" },
             { "include": "#attribute" }
           ]
         }
       ]
     },
-    "lgs-command": {
+
+    "placeholder-slash": {
       "patterns": [
         {
-          "name": "meta.lgs-expression.lgs",
-          "begin": "(\\$\\:)([a-zA-Z_][a-zA-Z0-9_]*)",
+          "name": "meta.placeholder.script.lgs",
+          "begin": "(\\$\\/)([a-zA-Z_-][a-zA-Z0-9_-]*)",
           "beginCaptures": {
                 "1": { "name": "keyword.lgs-identifier.lgs" },
-                "2": { "name": "keyword.control.lgs" }
+                "2": { "name": "support.function.lgs" }
           },
           "end": ";",
           "patterns": [
-            { "include": "#attribute" }
-          ]
-        }
-      ]
-    },
-    "tag": {
-      "patterns": [
-        {
-          "name": "meta.tag.lgs",
-          "begin": "(<)(/?)([a-zA-Z][a-zA-Z0-9]*)",
-          "beginCaptures": {
-            "1": { "name": "punctuation.definition.tag.lgs" },
-            "2": { "name": "punctuation.definition.tag.lgs" },
-            "3": { "name": "entity.name.tag.lgs" }
-          },
-          "end": "(>)",
-          "endCaptures": {
-            "1": { "name": "punctuation.definition.tag.lgs" }
-          },
-          "patterns": [
             { "include": "#comment" },
-            { "include": "#lgs-function" },
-            { "include": "#lgs-param" },
-            { "include": "#lgs-global-param" },
-            { "include": "#lgs-command" },
             { "include": "#attribute" }
           ]
         }
@@ -138,22 +84,179 @@
           "begin": "\"",
           "end": "\"",
           "patterns": [
-            { "include": "#comment" },
-            { "include": "#lgs-function" },
-            { "include": "#lgs-param" },
-            { "include": "#lgs-global-param" },
-            { "include": "#lgs-command" }
+            { "include": "#placeholder-dollar" },
+            { "include": "#placeholder-slash" }
           ]
         }
       ]
     },
-    "entity": {
+
+    "template-view": {
+      "name": "meta.tag.view.lgs",
+      "begin": "<(view)\\s*>",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.tag.begin.lgs" },
+        "1": { "name": "entity.name.tag.template.lgs" }
+      },
+      "end": "</\\1\\s*>",
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.tag.end.lgs" },
+        "1": { "name": "entity.name.tag.template.lgs" }
+      },
+      "contentName": "text.html.basic",
       "patterns": [
+        { "include": "#comment" },
+        { "include": "#placeholders" },
+        { "include": "text.html.basic" }
+      ]
+    },
+    "template-head": {
+      "name": "meta.tag.head.lgs",
+      "begin": "<(head)\\s*>",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.tag.begin.lgs" },
+        "1": { "name": "entity.name.tag.template.lgs" }
+      },
+      "end": "</\\1\\s*>",
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.tag.end.lgs" },
+        "1": { "name": "entity.name.tag.template.lgs" }
+      },
+      "contentName": "text.html.basic",
+      "patterns": [
+        { "include": "#comment" },
+        { "include": "#placeholders" },
+        { "include": "text.html.basic" }
+      ]
+    },
+    "template-style": {
+      "name": "meta.tag.style.lgs",
+      "begin": "<(style)\\s*>",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.tag.begin.lgs" },
+        "1": { "name": "entity.name.tag.template.lgs" }
+      },
+      "end": "</\\1\\s*>",
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.tag.end.lgs" },
+        "1": { "name": "entity.name.tag.template.lgs" }
+      },
+      "contentName": "source.css",
+      "patterns": [
+        { "include": "#comment" },
+        { "include": "#placeholders" },
+        { "include": "source.css" }
+      ]
+    },
+    "template-script": {
+      "name": "meta.tag.script.lgs",
+      "begin": "<(script)\\s*>",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.tag.begin.lgs" },
+        "1": { "name": "entity.name.tag.template.lgs" }
+      },
+      "end": "</\\1\\s*>",
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.tag.end.lgs" },
+        "1": { "name": "entity.name.tag.template.lgs" }
+      },
+      "contentName": "source.js",
+      "patterns": [
+        { "include": "#comment" },
+        { "include": "#placeholders" },
+        { "include": "source.js" }
+      ]
+    },
+    "template-lang": {
+      "name": "meta.tag.lang.lgs",
+      "begin": "<(lang)\\s*>",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.tag.begin.lgs" },
+        "1": { "name": "entity.name.tag.template.lgs" }
+      },
+      "end": "</\\1\\s*>",
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.tag.end.lgs" },
+        "1": { "name": "entity.name.tag.template.lgs" }
+      },
+      "patterns": [
+        { "include": "#comment" },
+        { "include": "#placeholders" },
         {
-          "name": "constant.character.entity.lgs",
-          "match": "&(#x?[0-9a-fA-F]+|[a-zA-Z0-9]+);"
+          "match": "[^<\\$]+",
+          "name": "string.unquoted.lang.lgs"
         }
       ]
+    },
+    "template-template": {
+      "name": "meta.tag.template.lgs",
+      "begin": "<(template)\\s*>",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.tag.begin.lgs" },
+        "1": { "name": "entity.name.tag.template.lgs" }
+      },
+      "end": "</\\1\\s*>",
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.tag.end.lgs" },
+        "1": { "name": "entity.name.tag.template.lgs" }
+      },
+      "patterns": [
+        { "include": "#comment" },
+        { "include": "#placeholders" },
+        {
+          "match": "[^<\\$]+",
+          "name": "string.unquoted.template.lgs"
+        }
+      ]
+    },
+    "command-tag": {
+      "name": "meta.tag.command.lgs",
+      "begin": "<(import|export|global)\\s*>",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.tag.begin.lgs" },
+        "1": { "name": "keyword.control.command.lgs" }
+      },
+      "end": "</\\1\\s*>",
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.tag.end.lgs" },
+        "1": { "name": "entity.name.tag.command.lgs" }
+      },
+      "patterns": [
+        { "include": "#comment" },
+        { "include": "#placeholders" },
+        { "include": "#template-view" },
+        { "include": "#template-head" },
+        { "include": "#template-style" },
+        { "include": "#template-script" },
+        { "include": "#template-lang" },
+        { "include": "#template-template" },
+        { "include": "#var-tag" }
+      ]
+    },
+    "var-tag": {
+      "name": "meta.tag.var.lgs",
+      "begin": "<(?!(?:import|export|global|view|style|script|head|lang|template)\\b)([A-Za-z][A-Za-z0-9_-]*)\\s*>",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.tag.begin.lgs" },
+        "1": { "name": "entity.name.tag.var.lgs" }
+      },
+      "end": "</\\1\\s*>",
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.tag.end.lgs" },
+        "1": { "name": "entity.name.tag.var.lgs" }
+      },
+      "patterns": [
+        { "include": "#comment" },
+        { "include": "#placeholders" },
+        { "include": "#template-view" },
+        { "include": "#template-head" },
+        { "include": "#template-style" },
+        { "include": "#template-script" },
+        { "include": "#template-lang" },
+        { "include": "#template-template" },
+        { "include": "#command-tag" }
+      ]
     }
-  }
+  },
+  "scope": "source.lgs"
 }

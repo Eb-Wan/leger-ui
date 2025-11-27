@@ -20,10 +20,10 @@ function importLgs(list, mem) {
     }
 }
 function lang(lgs, mem) {
-    mem["globals"]["lang"] = lgsInterpolate(lgs, mem);
+    mem["globals"]["lang"] = lgsInterpolate(lgs, mem, "lang");
 }
 function head(lgs, mem) {
-    mem["globals"]["head"] = lgsInterpolate(lgs, mem);
+    mem["globals"]["head"] = lgsInterpolate(lgs, mem, "head");
 }
 function view(lgs, mem) {
     mem["globals"]["view"] = lgsInterpolate(lgs, mem, "view");
