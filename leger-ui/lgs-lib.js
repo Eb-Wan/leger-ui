@@ -45,8 +45,8 @@ const _execLgs = async (lgs, params = {}) => {
 
             return executeParsedLgs(parsed);
             
-            function executeParsedLgs(parsed, importedMem = {}) {
-                const mem = { exports: {}, globals: {}, ...params, ...importedMem };
+            function executeParsedLgs(parsed, params = {}) {
+                const mem = { exports: {}, globals: {}, ...structuredClone(params) };
                 for (const [ key, value ] of Object.entries(parsed)) {
                     const func = lgsFunctions.find(f => f.id == key);
         
@@ -111,68 +111,101 @@ const _execLgs = async (lgs, params = {}) => {
         return parsedLgs;
     }
 
-    function lgsInterpolate(string, params) {
-        if (typeof(params) != "object") throw new Error("Typeof render params must be object");
-
-        let styleImport = "";
-        let scriptImport = "";
+    function lgsInterpolate(string, mem, type) {
+        let styleImported = "";
+        let scriptImported = ""
         
-        const varRegex = /(?<!\\)\$\$[^;]+;/;
-        const scriptRegex = /(?<!\\)\$\/[^;]+;/;
-        
-        let expression = string.match(varRegex);
+        // replace props ($$var;)
+        let expression = findPropsExpression(string);
         while (expression) {
-            expression = parseExpression(expression[0]);
-            string = string.replaceAll(expression.expression, getObjectValue(expression.key, params));
-            expression = string.match(varRegex);
+            expression = parseExpression(expression);
+            string = string.replaceAll(expression.expression, getObjectValue(expression.key, mem) ?? "");
+            expression = findPropsExpression(string);
         }
-    
-        // expression = string.match(scriptRegex);
+        
+        // replace scripts ($/script;)
+        // expression = findScriptExpression(string);
         // while (expression) {
         //     let result;
-        //     expression = parseExpression(expression[0]);
-    
-        //     if (expression.args["!bind"] == "true") result = lgsExecute(expression.key, { ...expression.args, ...mem });
-        //     else result = lgsExecute(expression.key, expression.args);
+        //     expression = parseExpression(expression);
+
+        //     const imports = mem.globals.imports ?? {};
+        //     const path = imports[expression.key];
+        //     if (!path) throw new Error(`Call to non-imported script "${expression.key}".`);
+
+        //     if (expression.args["!bind"] == "true") result = lgsExecute(path, { ...expression.args, ...mem });
+        //     else result = lgsExecute(path, { ...expression.args, globals: mem.globals, ...mem.globals });
             
-        //     styleImport += result.style+"\n";
-        //     scriptImport += result.script+"\n";
+        //     styleImported += result.style ?? "" +"\n";
+        //     scriptImported += result.script ?? "" +"\n";
         //     result = result[type];
-            
-        //     string = string.replaceAll(expression.expression, result);
-        //     expression = string.match(scriptRegex);
+        //     string = string.replaceAll(expression.expression, result ?? "");
+        //     expression = findScriptExpression(string);
         // }
-    
-        return string;
-    }
 
-    function getObjectValue(key, obj) {
-        let value = obj;
-        key = key.split(".");
-        key.forEach(e => value = (typeof(value) == "object" ? value[e] ?? "" : ""));
-        return value;
-    }
-
-    function parseExpression(expression) {
-        let parsingArgs = false;
-        let identifier = expression.slice(0, 2);
-        let key = "";
-        let args = "";
-        for (let index = 2; index < expression.length - 1; index++) {
-            const current = expression[index];
-            if (parsingArgs) args += current;
-            else {
-                if (current == " ") parsingArgs = true;
-                else key += current;
-            }
+        // automatically add css and js if nothing is present
+        if (type == "view") {
+            if (!mem.exports.style) mem["exports"]["style"] = styleImported;
+            if (!mem.exports.script) mem["exports"]["script"] = scriptImported;
         }
-        return { expression, id: identifier, key: key.trim(), args: parseArgs(args.trim()+";"), argsString: args };
-    }
 
+        return string;
+        
+        function findPropsExpression(string) {
+            return extractExpression(string, /(?<!\\)\$\$/);
+        }
+        
+        function findScriptExpression(string) {
+            return extractExpression(string, /(?<!\\)\$\//);
+        }
+        function extractExpression(string, regex) {
+            let index = string.search(regex);
+            if (index == -1) return "";
+            
+            let extracted = "";
+            let depth = 0;
+            for (let i = 0; i < string.length; i++) {
+                const current = string[index];
+                extracted += current;
+                index++;
+                
+                if (string.slice(index, index+2).match(regex)) depth++;
+                if (current == ";"){
+                    if(depth <= 0) return extracted;
+                    else depth--;
+                }
+            }
+            throw new Error("Missing semi-colon !");
+        }
+        
+        function getObjectValue(key, obj) {
+            let value = obj;
+            key = key.split(".");
+            key.forEach(e => value = (typeof(value) == "object" ? value[e] ?? "" : ""));
+            return value;
+        }
+        
+        function parseExpression(expression) {
+            let parsingArgs = false;
+            let identifier = expression.slice(0, 2);
+            let key = "";
+            let args = "";
+            for (let index = 2; index < expression.length - 1; index++) {
+                const current = expression[index];
+                if (parsingArgs) args += current;
+                else {
+                    if (current == " ") parsingArgs = true;
+                    else key += current;
+                }
+            }
+            return { expression, id: identifier, key: key.trim(), args: parseArgs(args.trim()+";"), argsString: args };
+        }
+    }
+    
     function parseArgs(argString) {
         if (argString==";") return {};
         const args = {};
-
+    
         let depth = 0;
         let key = "";
         let value = "";
@@ -182,6 +215,7 @@ const _execLgs = async (lgs, params = {}) => {
             if (depth == 0) key += current;
             else if (depth > 0) value += current;
             else throw new Error(`Error while parsing arguments "${argString}".`)
+            
             if (index+1 >= argString.length) throw new Error(`Error while parsing arguments "${argString}".`);
             
             if (argString.slice(index+1, index+3) == "=\"") {
