@@ -26,12 +26,13 @@ const projectDirectory = dirname(parsedArgs.flaggedArgs["-i"]);
 const outputDirectory = parsedArgs.flaggedArgs["-o"] ? parsedArgs.flaggedArgs["-o"] : dirname(parsedArgs.flaggedArgs["-i"]);
 
 if (parsedArgs.flags.includes("--dev")) {
+    const port = 8080;
     if (!outputDirectory.trim().match(/^[A-Za-z0-9\/.~_-\s]+$/)) {
         console.error("Output directory contains illegal characters")
         process.exit(1);
     }
-    console.log("(Experimental) Server listening on http://127.0.0.1:8081/\nRefresh page to see changes.");
-    let server = exec(`cd "${outputDirectory}" && npx -y http-server`, serverCallback);
+    console.log(`(Experimental) Server listening on http://127.0.0.1:${port}/\nRefresh page to see changes.`);
+    let server = exec(`cd "${outputDirectory}" && npx -y http-server -p ${port}`, serverCallback);
     parsedArgs.flags.push("-w");
     watch(projectDirectory, { recursive: true }, () => {
         compile();
@@ -79,7 +80,7 @@ function compile() {
                 const lang = value.lang ? value.lang : "en";
                 const head = value.head ? value.head : "";
                 const styleImport = value.style ? `<link rel="stylesheet" href="${key}.css">` : "";
-                const scriptImport = value.script ? `<script src="${key}.js" delay></script>` : "";
+                const scriptImport = value.script ? `<script src="${key}.js" defer></script>` : "";
                 const html = `<!DOCTYPE html><meta name="viewport" content="width=device-width, initial-scale=1.0"><html lang="${lang}"><head>${head}${styleImport}${scriptImport}</head><body>${value.view}</body></html>`
                 writeFileSync(`${outputDirectory}/${key}.html`, html.replaceAll(regex, ""));
             }

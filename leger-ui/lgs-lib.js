@@ -4,12 +4,15 @@ class Component {
     
     constructor(url) {
         this.url = url;
-        this.lgs = fetch(this.url).then(res=>res.text())
-        .then(t=>this.lgs=t)
-        .catch(err => console.error("Failed to load lgs", err));
+        if (url) {
+            this.lgs = fetch(this.url).then(res=>res.text())
+            .then(t=>this.lgs=t)
+            .catch(err => console.error("Failed to load lgs", err));
+        }
     }
     async render(target, params) {
         try {
+            if (!this.url) return;
             await this.lgs;
             const html = await _execLgs(this.lgs ?? "", params);
             target.innerHTML = html.replaceAll(/.*script.*/img, "p");
