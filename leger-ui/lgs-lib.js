@@ -14,6 +14,7 @@ class Component {
         try {
             if (!this.url) return;
             await this.lgs;
+            if (typeof this.lgs != "string") throw new Error("typeof lgs was not a string");
             const html = await _execLgs(this.lgs ?? "", params);
             target.innerHTML = html.replaceAll(/.*script.*/img, "p");
         } catch (error) {
@@ -22,14 +23,31 @@ class Component {
     }
 }
 
+class PreloadedComponent {
+    lgs = undefined;
+    constructor(lgs) {
+        this.lgs = lgs;
+    }
+    async render(target, params) {
+        try {
+            if (!this.lgs) return;
+            if (typeof this.lgs != "string") throw new Error("typeof lgs was not a string");
+            const html = await _execLgs(this.lgs ?? "", params);
+            target.innerHTML = html.replaceAll(/.*script.*/img, "p");
+        } catch (error) {
+            console.error("Failed to render preloaded component : "+error.message);
+        }
+    }
+}
+
 const _execLgs = async (lgs, params = {}) => {
     const lgsFunctions = [
         { id: "export", func: localExport },
         { id: "global", func: globalExport },
-        { id: "import", func: importLgs },
+        // { id: "import", func: importLgs },
         { id: "view", func: view },
         { id: "style", func: style },
-        { id: "script", func: script }
+        // { id: "script", func: script }
     ];
 
     if (typeof(params) != "object") throw new Error("Typeof render params must be object");
@@ -46,7 +64,7 @@ const _execLgs = async (lgs, params = {}) => {
         try {
             const parsed = lgsParser(lgs.replaceAll(/\/\*([\s\S]*?)\*\//gm, ""));
 
-            return executeParsedLgs(parsed);
+            return executeParsedLgs(parsed, params);
             
             function executeParsedLgs(parsed, params = {}) {
                 const mem = { exports: {}, globals: {}, ...structuredClone(params) };

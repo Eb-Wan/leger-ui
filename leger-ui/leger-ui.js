@@ -1,7 +1,7 @@
 import { existsSync, writeFileSync, cpSync, readFileSync, readdirSync, rmSync, watch } from "fs";
 import { dirname, basename, join } from "path";
 import { lgsExecute } from "./lgs-interpreter.js";
-import { exec } from "child_process";
+import { spawn } from "child_process";
 
 const parsedArgs = parseArgs(process.argv);
 
@@ -26,27 +26,26 @@ const projectDirectory = dirname(parsedArgs.flaggedArgs["-i"]);
 const outputDirectory = parsedArgs.flaggedArgs["-o"] ? parsedArgs.flaggedArgs["-o"] : dirname(parsedArgs.flaggedArgs["-i"]);
 
 if (parsedArgs.flags.includes("--dev")) {
-    const port = 8080;
     if (!outputDirectory.trim().match(/^[A-Za-z0-9\/.~_-\s]+$/)) {
         console.error("Output directory contains illegal characters")
         process.exit(1);
     }
-    console.log(`(Experimental) Server listening on http://127.0.0.1:${port}/\nRefresh page to see changes.`);
-    let server = exec(`cd "${outputDirectory}" && npx -y http-server -p ${port}`, serverCallback);
+
+    let server = spawn ("npx", ["-y", "http-server"], { cwd: outputDirectory });
     parsedArgs.flags.push("-w");
     watch(projectDirectory, { recursive: true }, () => {
         compile();
-        server = exec(`cd "${outputDirectory}" && npx -y http-server`, serverCallback);
     });
 
-    function serverCallback(error, stdout, stderr) {
-        if (error) {
-            console.error(`Server error: ${error.message}`);
-            return;
-        }
-        if (stderr) console.error(`Server stderr: ${stderr}`);
-        console.log(`Server output:\n${stdout}`);
-    }
+    server.stdout.on('data', (data) => {
+     console.log(`Server stdout: ${data}`);
+    });
+    server.stderr.on('data', (data) => {
+        console.error(`Server stderr: ${data}`);
+    });
+    server.on('close', (code) => {
+        console.log(`Server process exited with code ${code}`);
+    });
 } else if (parsedArgs.flags.includes("-w")) {
     watch(projectDirectory, { recursive: true }, () => {
         compile();
