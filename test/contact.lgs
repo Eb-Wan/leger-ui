@@ -1,0 +1,16 @@
+<view>
+    <h1>Contact</h1>
+    <form>
+        <label>
+            Object :
+            <input name="object" type="text">
+        </label>
+        <label>
+            Message :
+            <textarea name="message"></textarea>
+        </label>
+        <button type="submit">Send</button>
+    </form>
+    <p>This value ($$name;) wasn't supposed to be here... Or is it ?</p>
+    <p>See, to solve a problem (many variables in css for example), you can pass !bind as param and that will bring every variables accessible in the current scope.</p>
+</view>
