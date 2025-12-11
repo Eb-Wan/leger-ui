@@ -1,0 +1,17 @@
+/* Testing the new parser (wich is basically a simple XML parser at this point) */
+/* Maybe LGS is actually LGX */
+
+<test att="test" att2="test2" />
+
+<import test="test">
+    <count-button>button.lgs</count-button>
+    <navbar>navbar.lgs</navbar>
+    <import test="test">
+        <count-button>button.lgs</count-button>
+        <navbar>navbar.lgs</navbar>
+        <import test="test">
+            <count-button>button.lgs</count-button>
+            <navbar>navbar.lgs</navbar>
+        </import>
+    </import>
+</import>

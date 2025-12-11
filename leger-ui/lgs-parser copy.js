@@ -1,6 +1,6 @@
 /**
- * Parse LGS string into object.
- * @param {string} lgs - LGS string to be parsed
+ * Parse LGS string into objects.
+ * @param {string} lgs - lgs string to be parsed
  * @returns {object}
  */
 
@@ -18,7 +18,7 @@ function lgsParser(lgs) {
             value += char;
             if (value.includes(`</${key}>`)) {
                 value = value.replace(`</${key}>`, "");
-                parsedLgs[key] = value;
+                parsedLgs[key] = { value, attributes: parseAttributes(attributes) };
                 key = "";
                 value = "";
             }
@@ -38,12 +38,25 @@ function lgsParser(lgs) {
     
     for (const [key, value] of Object.entries(parsedLgs)) {
         if (key != "view" && key != "script" && key != "style" && key != "head" && key != "lang") {
-            const parsed = lgsParser(value);
-            parsedLgs[key] = Object.keys(parsed).length != 0 ? parsed : value;
+            const parsed = lgsParser(value.value);
+            parsedLgs[key] = { value: Object.keys(parsed).length != 0 ? parsed : value,  };
         }
     }
 
     return parsedLgs;
+}
+
+function parseAttributes(str) {
+    const attributes = {};
+    let attribute = str.match(/([0-9a-zA-Z_-]+)=\"([^"]*)\"/);
+    while (attribute) {
+        let value = attribute[2];
+        if (value.match(/^[0-9]+$/)) value = parseFloat(value);
+        attributes[attribute[1]] = value;
+        str = str.replace(attribute[0], "");
+        attribute = str.match(/([0-9a-zA-Z_-]+)=(\"[^"]*\")/);
+    }
+    return attributes;
 }
 
 module.exports = { lgsParser };

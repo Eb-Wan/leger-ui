@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "fs";
 import { projectDirectory, outputDirectory } from "./leger-ui.js";
-import { lgsParser } from "./lgs-parsers.js";
+import { lgsParser } from "./lgs-parser.js";
 import lgsFunctions from "./lgs-functions.js";
 
 /**
@@ -15,28 +15,28 @@ function lgsExecute(path, params = {}) {
     if (!existsSync(path)) throw new Error(`Script ${path} doesn't exist.`)
     try {
         const parsed = lgsParser(readFileSync(path, "utf-8").replaceAll(/\/\*([\s\S]*?)\*\//gm, ""));
-    
-        return executeParsedLgs(parsed, params);
+        console.log(parsed);
+    //     return executeParsedLgs(parsed, params);
         
-        function executeParsedLgs(parsed, params = {}) {
-            const mem = { exports: {}, globals: {}, ...structuredClone(params) };
-            for (const [ key, value ] of Object.entries(parsed)) {
-                const func = lgsFunctions.find(f => f.id == key);
+    //     function executeParsedLgs(parsed, params = {}) {
+    //         const mem = { exports: {}, globals: {}, ...structuredClone(params) };
+    //         for (const [ key, value ] of Object.entries(parsed)) {
+    //             const func = lgsFunctions.find(f => f.id == key);
     
-                if (func && func.func) func.func(value, mem);
-                else if (typeof(value) == "object")mem[key] = executeParsedLgs(parsed[key], mem);
-                else mem[key] = value;
-            }
+    //             if (func && func.func) func.func(value, mem);
+    //             else if (typeof(value) == "object")mem[key] = executeParsedLgs(parsed[key], mem);
+    //             else mem[key] = value;
+    //         }
             
-            const returned = {
-                ...mem.exports ?? {},
-                ...mem.globals ?? {},
-                exports: {},
-                globals: { ...mem.globals ?? {} }
-            }
+    //         const returned = {
+    //             ...mem.exports ?? {},
+    //             ...mem.globals ?? {},
+    //             exports: {},
+    //             globals: { ...mem.globals ?? {} }
+    //         }
 
-            return returned;
-        }
+    //         return returned;
+    //     }
     } catch (error) {
         throw error;
     }
