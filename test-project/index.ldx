@@ -1,0 +1,9 @@
+<test att="test" att2="test2" />
+
+<template path="navbar.ldx" name="navbar" />
+<template path="button.ldx" name="count-button" />
+
+<page id="index">
+    <navbar />
+    <count-button />
+</page>

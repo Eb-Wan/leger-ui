@@ -4,10 +4,10 @@
  * @returns {object}
  */
 
-function lgsParser(lgs) {
-    const tagRegex = /<([a-zA-Z0-9_-]+) *([0-9a-zA-Z_-]+=\"[^"]*\" *)*>/;
+function ldxParser(lgs) {
+    const tagRegex = /<([a-zA-Z0-9_-]+) *(.*) *>/;
     const closingTagRegex = /<\/([a-zA-Z0-9_-]+)>/;
-    const selfClosingTagRegex = /<([a-zA-Z0-9_-]+) *([0-9a-zA-Z_-]+=\"[^"]*\" *)*\/>/;
+    const selfClosingTagRegex = /<([a-zA-Z0-9_-]+) *(.*) *\/>/;
     const parsed = [];
 
     const Actions = {
@@ -25,8 +25,8 @@ function lgsParser(lgs) {
         buffer += c;
         switch(currentAction) {
             case Actions.GetTag :
-                parseTag();
                 parseSelfClosingTag();
+                parseTag();
                 break;
             case Actions.GetContents:
                 parseContents();
@@ -34,7 +34,6 @@ function lgsParser(lgs) {
             default:
                 break;
         }
-        
     });
 
     function parseTag() {
@@ -43,6 +42,7 @@ function lgsParser(lgs) {
         currentElement.tagName = match[1];
         currentElement.attributes = parseAttributes(match[2]);
         currentAction = Actions.GetContents;
+        currentElement.contents = "";
         buffer = "";
     }
     function parseSelfClosingTag() {
@@ -76,6 +76,16 @@ function lgsParser(lgs) {
             buffer = "";
         } else {
             currentElement.contents += buffer.replace(closingTagRegex, "");
+            
+            let contents;
+            if (
+                currentElement.tagName != "num" && currentElement.tagName != "str" &&
+                currentElement.tagName != "bool" && currentElement.tagName != "func" &&
+                currentElement.tagName != "style" && currentElement.contents
+            ) contents = ldxParser(currentElement.contents);
+            
+            if (contents && contents.length > 0) currentElement.contents = contents;
+            
             parsed.push(structuredClone(currentElement));
             currentAction = Actions.GetTag;
             buffer = "";
@@ -98,4 +108,4 @@ function lgsParser(lgs) {
     return parsed;
 }
 
-module.exports = { lgsParser };
+module.exports = { ldxParser };

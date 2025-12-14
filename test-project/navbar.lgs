@@ -1,7 +1,0 @@
-<navbar l-type="element" l-tag="header">
-    
-</navbar>
-
-<export>
-    <navbar>navbar</navbar>
-</export>

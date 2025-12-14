@@ -1,0 +1,6 @@
+<button l-onclick="count" class="primary-button">
+    <span l-content="number">test</span>
+</button>
+
+<num name="number">0</num>
+<func name="count">this.number++</func>

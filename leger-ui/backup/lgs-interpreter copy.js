@@ -3,18 +3,40 @@ import { projectDirectory, outputDirectory } from "./leger-ui.js";
 import { lgsParser } from "./lgs-parser.js";
 import lgsFunctions from "./lgs-functions.js";
 
-/**
- * Executes an LGS script
- * @param {string} path - Path to the script
- * @returns {object} - Results of the script ({ view, style, script })
- */
-
-function lgsExecute(path, params = {}) {
+function ldxCompile(path, params = {}) {
     path = projectDirectory+"/"+path;
     
     if (!existsSync(path)) throw new Error(`Script ${path} doesn't exist.`)
     try {
-        const parsed = lgsParser(readFileSync(path, "utf-8").replaceAll(/\/\*([\s\S]*?)\*\//gm, ""));
+        const imported = [];
+        let parsed = lgsParser(readFileSync(path, "utf-8").replaceAll(/\/\*([\s\S]*?)\*\//gm, ""));
+
+
+        // Import scripts :
+        //      Walk through parsed tree
+        //      Push import script if not exist
+        //
+        // Compile HTML :
+        //      Walk through the imported scripts
+        //      Find "router"
+        //      ForEach Element in router
+        //          If element imported assign l-id attribute
+        //          Render as HTML
+        //
+        // Compile CSS :
+        //      Walk through the imported scripts
+        //      Get all STYLE elements
+        //      Compile as CSS
+        //
+        // Compile JavaScript :
+        //      Walk through the imported scripts
+        //      Create init function for element 
+        //          Get methods and assign as props
+        //          Get vars and assign as props
+        //      Window.onload
+        //          querySelector("[l-id]").forEach -> execute init function
+        //      Render as JS
+
         console.log(parsed);
     //     return executeParsedLgs(parsed, params);
         
@@ -40,6 +62,7 @@ function lgsExecute(path, params = {}) {
     } catch (error) {
         throw error;
     }
+
 }
 
 /**
@@ -50,6 +73,7 @@ function lgsExecute(path, params = {}) {
  * @returns {string}
 */
 
+/*
 function lgsInterpolate(string, mem, type) {
     let styleImported = "";
     let scriptImported = ""
@@ -180,5 +204,6 @@ function lgsInterpolate(string, mem, type) {
         return args;
     }
 }
+*/
 
-export { lgsExecute, lgsInterpolate };
+export { ldxCompile };
