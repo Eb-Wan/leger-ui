@@ -1,10 +1,12 @@
+import { checkTypeOfLdxElement } from "./ldx-props.js";
+
 /**
- * Parse LGS string into objects.
- * @param {string} lgs - lgs string to be parsed
+ * Parse LDX string into objects.
+ * @param {string} ldx - LDX string to be parsed
  * @returns {object}
  */
 
-function ldxParser(lgs) {
+function ldxParser(ldx) {
     const tagRegex = /<([a-zA-Z0-9_-]+) *(.*) *>/;
     const closingTagRegex = /<\/([a-zA-Z0-9_-]+)>/;
     const selfClosingTagRegex = /<([a-zA-Z0-9_-]+) *(.*) *\/>/;
@@ -21,7 +23,7 @@ function ldxParser(lgs) {
     let buffer = "";
     let currentElement = {};
     let depth = 0;
-    lgs.split("").forEach(c => {
+    ldx.split("").forEach(c => {
         buffer += c;
         switch(currentAction) {
             case Actions.GetTag :
@@ -78,12 +80,7 @@ function ldxParser(lgs) {
             currentElement.contents += buffer.replace(closingTagRegex, "");
             
             let contents;
-            if (
-                currentElement.tagName != "num" && currentElement.tagName != "str" &&
-                currentElement.tagName != "bool" && currentElement.tagName != "func" &&
-                currentElement.tagName != "style" && currentElement.contents
-            ) contents = ldxParser(currentElement.contents);
-            
+            if (!checkTypeOfLdxElement(currentElement) && currentElement.contents) contents = ldxParser(currentElement.contents);
             if (contents && contents.length > 0) currentElement.contents = contents;
             
             parsed.push(structuredClone(currentElement));
@@ -93,7 +90,7 @@ function ldxParser(lgs) {
         }
     }
     function parseAttributes(str) {
-        if (!str) return;
+        if (!str) return {};
         const attributes = {};
         let attribute = str.match(/([0-9a-zA-Z_-]+)=\"([^"]*)\"/);
         while (attribute) {
@@ -108,4 +105,4 @@ function ldxParser(lgs) {
     return parsed;
 }
 
-module.exports = { ldxParser };
+export { ldxParser };
