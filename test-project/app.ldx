@@ -1,12 +1,10 @@
-<test att="test" att2="test2" />
-
 <router>
     <route path="index">
-        <template path="navbar.ldx" name="navbar" />
-        <template path="button.ldx" name="count-button" />
+        <template path="navbar.ldx" name="Navbar" />
+        <template path="button.ldx" name="Count-button" />
 
-        <navbar />
-        <count-button />
+        <Navbar />
+        <Count-button />
         <div test="test" bass="bASS">
             test
         </div>

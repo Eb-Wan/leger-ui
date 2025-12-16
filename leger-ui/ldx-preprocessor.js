@@ -29,7 +29,7 @@ function ldxPreprocessor(imported) {
             }
             return;
         } catch (error) {
-            throw new Error(error.message + " in " + imported.path);
+            throw error;
         }
     }
 }
