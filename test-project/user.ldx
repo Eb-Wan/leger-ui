@@ -1,0 +1,9 @@
+<li>
+    <fieldset>
+        <legend l-content="name"></legend>
+        <div l-content="email"></div>
+    </fieldset>
+
+    <str name="name" value=""></str>
+    <str name="email" value=""></str>
+</li>

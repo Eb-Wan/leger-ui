@@ -21,7 +21,7 @@ if (parsedArgs.flaggedArgs["-o"] && !existsSync(parsedArgs.flaggedArgs["-o"])) {
 }
 
 const params = { ...JSON.parse(parsedArgs.flaggedArgs["-a"] ? parsedArgs.flaggedArgs["-a"] : "{}") };
-const compilerDir = dirname(process.argv[1]);
+const compilerDirectory = dirname(process.argv[1]);
 const projectDirectory = dirname(parsedArgs.flaggedArgs["-i"]);
 const outputDirectory = parsedArgs.flaggedArgs["-o"] ? parsedArgs.flaggedArgs["-o"] : dirname(parsedArgs.flaggedArgs["-i"]);
 
@@ -74,7 +74,7 @@ function compile() {
         //     const regex = /(\s)\1+|\n/gm;
         //     if (value.style) writeFileSync(`${outputDirectory}/${key}.css`, value.style.replaceAll(regex, ""));
         //     if (value.script) {
-        //         value.script = readFileSync(compilerDir+"/lgs-lib.js", "utf-8") + value.script;
+        //         value.script = readFileSync(compilerDirectory+"/lgs-lib.js", "utf-8") + value.script;
         //         writeFileSync(`${outputDirectory}/${key}.js`, value.script);
         //     }
         //     if (value.view) {
@@ -121,4 +121,4 @@ function parseArgs(array) {
     return parsedArgs;
 }
 
-export { projectDirectory, outputDirectory };
+export { projectDirectory, outputDirectory, compilerDirectory };

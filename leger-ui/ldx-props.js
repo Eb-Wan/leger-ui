@@ -15,4 +15,26 @@ function checkTypeOfLdxElement(e) {
     return ldxTypes.includes(e.tagName ?? "") ? e.tagName : false;
 }
 
-export { ldxTypes, checkTypeOfLdxElement, ldxElementToProp };
+function stringifyProps(props) {
+    let str = "";
+    for (const [key, value] of Object.entries(props)) {
+        str+=`"${key}": ${stringifyValue(value)}, `;
+    }
+
+    return str.slice(0, -2);
+    // props.map(e => {
+    //     return `${e.name}: ${stringifyValue(e.value)}`;
+    // }).join(", ");
+
+    function stringifyValue(value) {
+        if (typeof value != "object") return value;
+        else if (value.type == "num") return parseFloat(value.value);
+        else if (value.type == "str") return `"${value.value}"`;
+        else if (value.type == "bool") return value.value == "true" || value.value == "1" ? "true" : "false";
+        else if (value.type == "style") return `"${value.value}"`;
+        else if (value.type == "template") return `"${value.value}"`;
+        else if (value.type == "func") return `function(args) { ${value.value} }`;
+    };
+}
+
+export { ldxTypes, checkTypeOfLdxElement, ldxElementToProp, stringifyProps };

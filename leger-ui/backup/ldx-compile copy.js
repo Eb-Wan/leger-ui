@@ -34,8 +34,7 @@ function parseLdxFile(path, params = {}, imports) {
     function importTemplates(ldx, imports) {
         const templates = ldx.filter(e => e.tagName == "template");
         templates.forEach(e => {
-            // if (!e.attributes || !e.attributes.path) throw new Error("Unamed template in "+ resolvedPath);
-            if (!e.attributes || !e.attributes.name || !e.attributes.path) throw new Error("Unamed template in "+ resolvedPath);
+            if (!e.attributes || !e.attributes.path) throw new Error("Unamed template in "+ resolvedPath);
             if (imports.find(f => f.path == e.attributes.path)) return;
             if (e.attributes.path) parseLdxFile(e.attributes.path, params, imports);
         });
@@ -112,6 +111,23 @@ function compileAppToJS(outputPath, app) {
     const js = `const app = JSON.parse(\`${JSON.stringify(app).replaceAll("`", "\\`").replaceAll("\\", "\\\\")}\`); \n${runner}`;
     // const js = `const app = ${stringifyApp(app)}; \n${runner}`;
     writeFileSync(outputDirectory+"/"+outputPath.replace("ldx", "js"), js);
+
+    // Returns app as a string
+    function stringifyApp(app) {
+        return "["+app.map(e => {
+            return `{ path: "${e.path}", contents: [${stringifyContent(e.contents)}], props: {${stringifyProps(e.props)}} }`;
+        }).join(", ")+"]";
+
+        function stringifyContent(contents) {
+            if (!Array.isArray(contents)) return escape(contents);
+            return contents.map(e => {
+                return `{ tagName: "${e.tagName}", contents }`;
+            })
+            function escape(value) {
+                return value.replace("\"", "\\\"");
+            };
+        }
+    }
 }
 
 function compileAppToCSS(outputPath, app) {

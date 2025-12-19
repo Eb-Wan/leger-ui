@@ -1,7 +1,10 @@
-<button l-onclick="count" class="primary-button">
-    <template path="test.ldx" name="Test" />
-    <span l-content="number">test</span>
-    <Test />
-    <num name="number">0</num>
-    <func name="count">this.number++</func>
-</button>
+<div>
+    <button l-onclick="count" class="primary-button">
+        <template path="test.ldx" name="Test" />
+        <span l-content="number">test</span>
+        <span>&nbsp;</span>
+        <Test />
+        <num name="number">0</num>
+        <func name="count">this.number++</func>
+    </button>
+</div>

@@ -1,12 +1,18 @@
 <router>
     <route path="index">
+        <template path="head.ldx" name="Head" />
         <template path="navbar.ldx" name="Navbar" />
         <template path="button.ldx" name="Count-button" />
-
-        <Navbar />
-        <Count-button />
-        <div test="test" bass="bASS">
-            test
-        </div>
+        <template path="users.ldx" name="Users" />
+        <html lang="en">
+            <Head />
+            <Navbar />
+            <Count-button />
+            <div test="test" bass="bASS">
+                test
+            </div>
+            <Users />
+            <script src="app.js"></script>
+        </html>
     </route>
 </router>
