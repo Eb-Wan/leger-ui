@@ -56,9 +56,22 @@ document.addEventListener("DOMContentLoaded", function(event) {
             if (!elements && elements.length > 0) return;
             elements.forEach(e => {
                 const value = htmlElement[e.getAttribute("l-content")];
-                if (Array.isArray(value)) e.innerHTML = elementToHTML(value);
+                if (htmlElement[e.getAttribute("l-mapto")] && Array.isArray(value)) e.innerHTML = mapTo(htmlElement[e.getAttribute("l-mapto")] ?? "", value);
                 else e.textContent = value;
             });
+            
+            return;
+            
+            function mapTo(templateProp, array) { 
+                const template = app.find(e => e.path == templateProp);
+                
+                if (!template) throw new Error(`Template ${templateProp} does not exists`);
+                if (!array || !Array.isArray(array)) throw new Error("l-content property must be an array for use with l-mapto");
+                
+                array.map(e => elementToHTML(template, app, e)).join("");
+
+                return;
+            }
         }
         function assignAttributes(elements, attribute, htmlElement) {
             if (!elements && elements.length > 0) return;
