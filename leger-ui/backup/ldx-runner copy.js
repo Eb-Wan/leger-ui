@@ -1,26 +1,18 @@
 document.addEventListener("DOMContentLoaded", function(event) {
+    console.log(app)
+
     const onLoadMethods = [];
-    app.forEach(e => e.props = prepareProps(e.props));
-    initChildrens(document);
+
+    app.forEach(e => {
+        e.props = prepareProps(e.props);
+        document.querySelectorAll(`[l-app-element-id='${e.path}']`).forEach(n => {
+            initElement(n, e);
+        });
+    });
+
     onLoadMethods.forEach(e => e());
     return;
-    
-    function initChildrens(element, propsArray) {
-        if (!Array.isArray(propsArray)) propsArray = [];
-        app.forEach(e => {
-            element.querySelectorAll(`[l-app-element-id='${e.path}']`).forEach((n, i) => {
-                initElement(n, e, propsArray[i] ?? {});
-            });
-        });
-    }
-    function initElement(htmlElement, appElement, props) {
-        if (typeof appElement != "object" || !appElement.props) return;
-        htmlElement.props = {...appElement.props, ...props};
-        htmlElement.props._element = htmlElement;
-        htmlElement.props._exec = exec.bind(htmlElement.props);
-        htmlElement.props._exec();
-        return;
-    }
+
     function prepareProps(props) {
         if (typeof props != "object") return {};
         for (const [key, value] of Object.entries(props)) {
@@ -28,6 +20,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }
         return props;
         function toValue(value) {
+            console.log(value)
             if (typeof value != "object" || !value.type) console.error("Failed to deserialize prop in", e.path);
             else if (value.type == "num") return Number(value.value);
             else if (value.type == "str") return String(value.value);
@@ -37,6 +30,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
             else if (value.type == "template") return String(value.value);
             else console.error("Unkown prop type in", e.path);
         }
+    }
+    function initElement(htmlElement, appElement) {
+        if (typeof appElement != "object" || !appElement.props) return;
+        htmlElement.props = {...appElement.props};
+        htmlElement.props._element = htmlElement;
+        htmlElement.props._exec = exec.bind(htmlElement.props);
+        htmlElement.props._exec();
+        return;
     }
     
     function exec(method, args = {}) {
@@ -64,56 +65,62 @@ document.addEventListener("DOMContentLoaded", function(event) {
             if (!elements && elements.length > 0) return;
             elements.forEach(e => {
                 const value = htmlElement[e.getAttribute("l-content")];
-                if (value == undefined) return;
-                if (htmlElement[e.getAttribute("l-map")] && Array.isArray(value)) {
-                    e.innerHTML = mapTo(htmlElement[e.getAttribute("l-map")] ?? "", value);
-                    initChildrens(e, value);
-                }
+                if (htmlElement[e.getAttribute("l-mapto")] && Array.isArray(value)) e.replaceChildren(...mapTo(htmlElement[e.getAttribute("l-mapto")] ?? "", value));
                 else e.textContent = value;
-                // e.removeAttribute("l-content");
             });
             
             return;
             
             function mapTo(templateProp, array) { 
                 const template = app.find(e => e.path == templateProp);
+                
                 if (!template) throw new Error(`Template ${templateProp} does not exists`);
-                if (!array || !Array.isArray(array)) throw new Error("l-content property must be an array for use with l-map");
-                template.contents[0].attributes["l-app-element-id"] = templateProp;
-                return array.map(e => elementToHTML(template, app, e)).join("");
+                if (!array || !Array.isArray(array)) throw new Error("l-content property must be an array for use with l-mapto");
+                
+                return array.map(e => templateToHTMLElement(template, app, e)[0]);
             }
         }
         function assignAttributes(elements, attribute, htmlElement) {
             if (!elements && elements.length > 0) return;
             elements.forEach(e => {
                 const value = htmlElement[e.getAttribute("l-a-"+attribute)];
-                if (value == undefined) return;
                 e.setAttribute(attribute, value);
-                // e.removeAttribute("l-a-"+attribute);
             });
         }
         function assignEventListeners(elements, eventType, htmlElement) {
             if (!elements && elements.length > 0) return;
             elements.forEach(e => {
                 const method = htmlElement[e.getAttribute("l-on"+eventType)];
-                if (method == undefined) return;
-                if (!method || typeof method != "function") throw new Error(`Function '${e.getAttribute("l-on"+eventType)}' doesn't exist.`);
+                if (!method || typeof method != "function") throw new Error(`Method '${e.getAttribute("l-on"+eventType)}' doesn't exist.`);
                 if (eventType == "load") {
                     onLoadMethods.push(()=>htmlElement._exec(method, { event, element: htmlElement }));
                 }
                 else e["on"+eventType] = event => htmlElement._exec(method, { event });
-                // e.removeAttribute("l-on"+eventType);
             });
         }
-        function elementToHTML(element, app, props) {
-            if (!Array.isArray(element.contents)) return `${element.contents}`;
-            let htmlStr = "";
-            element.contents.forEach(e => {
+        function templateToHTMLElement(template, app, props) {
+            if (!Array.isArray(template.contents)) throw new Error("Invalid template");
+
+            return template.contents.map(e => {
                 replaceWithImported();
-    
-                if (typeof e.contents == "string") htmlStr += `<${e.tagName}${attributesToString(e.attributes)}>${e.contents}</${e.tagName}>`;
-                else if (Array.isArray(e.contents)) htmlStr += `<${e.tagName}${attributesToString(e.attributes)}>${elementToHTML(e, app, e.props ?? props)}</${e.tagName}>`;
-                else htmlStr += `<${e.tagName}${attributesToString(e.attributes)} />`;
+                
+                const html = document.createElement(e.tagName ?? "div");
+
+                // Fix this
+
+                initElement(html, template);
+                if (typeof html.props == "object" && typeof props == "object") Object.assign(html.props, props);
+                // if (typeof html.props == "object" && typeof html.props._exec == "function") html.props._exec();
+                console.log(html, template)
+                if (typeof e.attributes == "object") {
+                    for (const [key, value] of Object.entries(e.attributes)) {
+                        html.setAttribute(key, value);
+                    }
+                }
+                if (typeof e.contents == "string") html.textContent = e.contents;
+                else if (Array.isArray(e.contents)) html.replaceChildren(...templateToHTMLElement(e, app, props));
+                
+                return html;
 
                 function replaceWithImported() {
                     if (!e.tagName[0].match(/[A-Z]/)) return;
@@ -129,16 +136,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     if (children) props.children = children;
                 }
             });
-            return htmlStr;
-    
-            function attributesToString(att) {
-                if (typeof att != "object") return "";
-                let str = "";
-                for (const [key, value] of Object.entries(att)) {
-                    str += ` ${key}="${value}"`;
-                }
-                return str;
-            }
         }
     }
 });

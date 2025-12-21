@@ -1,11 +1,11 @@
 import { checkTypeOfLdxElement, ldxElementToProp } from "./ldx-props.js";
 
-function ldxPreprocessor(imported) {
-    imported.forEach(e => {
+function ldxPreprocessor(app) {
+    app.forEach(e => {
         if (!e.props) e.props = {};
         preprocessElement(e, e.props);
     });
-    return imported;
+    return app;
     
     function preprocessElement(ldxElement, props) {
         try {
@@ -14,7 +14,6 @@ function ldxPreprocessor(imported) {
                 const e = ldxElement.contents[i];
                 if (Array.isArray(e.contents)) {
                     preprocessElement(e, props);
-                    return;
                 }
 
                 if (!checkTypeOfLdxElement(e)) continue;

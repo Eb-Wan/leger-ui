@@ -8,9 +8,6 @@
             <Head />
             <Navbar />
             <Count-button />
-            <div test="test" bass="bASS">
-                test
-            </div>
             <Users />
             <script src="app.js"></script>
         </html>

@@ -1,18 +1,15 @@
 <div>
-    <template name="User" path="user.ldx"></template>
-    <ul l-onload="loadUsers" l-content="users" l-mapto="User"></ul>
+    <template name="User" path="user.ldx" />
+    <ul l-onload="loadUsers" l-content="users" l-map="User"></ul>
+
     <func name="loadUsers">
-        /*const element = this;
+        const element = this;
         fetch("https://jsonplaceholder.typicode.com/users")
         .then(e=> e.json())
-        .then(e => element.users = e)
-        .catch(e => console.error(e));*/
-
-        this.users = [
-            { email: "user0@email.com", name: "user0" },
-            { email: "user1@email.com", name: "user1" },
-            { email: "user2@email.com", name: "user2" },
-            { email: "user3@email.com", name: "user3" }
-        ]
+        .then(e => {
+            element.users = e;
+            element._exec();
+        })
+        .catch(e => console.error(e));
     </func>
 </div>

@@ -1,9 +1,10 @@
 <li>
-    <fieldset>
+    <fieldset l-onload="test">
         <legend l-content="name"></legend>
         <div l-content="email"></div>
     </fieldset>
 
-    <str name="name" value=""></str>
-    <str name="email" value=""></str>
+    <func name="test">
+        console.log(this)
+    </func>
 </li>
