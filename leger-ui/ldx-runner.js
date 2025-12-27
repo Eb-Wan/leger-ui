@@ -1,144 +1,59 @@
-document.addEventListener("DOMContentLoaded", function(event) {
-    const onLoadMethods = [];
-    app.forEach(e => e.props = prepareProps(e.props));
-    initChildrens(document);
-    onLoadMethods.forEach(e => e());
-    return;
-    
-    function initChildrens(element, propsArray) {
-        if (!Array.isArray(propsArray)) propsArray = [];
-        app.forEach(e => {
-            element.querySelectorAll(`[l-app-element-id='${e.path}']`).forEach((n, i) => {
-                initElement(n, e, propsArray[i] ?? {});
-            });
-        });
-    }
-    function initElement(htmlElement, appElement, props) {
-        if (typeof appElement != "object" || !appElement.props) return;
-        htmlElement.props = {...appElement.props, ...props};
-        htmlElement.props._element = htmlElement;
-        htmlElement.props._exec = exec.bind(htmlElement.props);
-        htmlElement.props._exec();
-        return;
-    }
-    function prepareProps(props) {
-        if (typeof props != "object") return {};
-        for (const [key, value] of Object.entries(props)) {
-            props[key] = toValue(value);
-        }
-        return props;
-        function toValue(value) {
-            if (typeof value != "object" || !value.type) console.error("Failed to deserialize prop in", e.path);
-            else if (value.type == "num") return Number(value.value);
-            else if (value.type == "str") return String(value.value);
-            else if (value.type == "bool") return (value.value == "true" || value.value == "1") ? true : false;
-            else if (value.type == "func") return Function("args", value.value);
-            else if (value.type == "style") return String(value.value);
-            else if (value.type == "template") return String(value.value);
-            else console.error("Unkown prop type in", e.path);
-        }
-    }
-    
-    function exec(method, args = {}) {
-        if (typeof args != "object" || Array.isArray(args)) {
-            console.error("Type of args of _exec must be object");
-            return;
-        }
-        if (!method || typeof method != "function") {
-            render(this);
-            return;
-        }
-        method.call(this, args);
-        render(this);
-        return;
-    
-        function render(htmlElement) {
-            assignContent(htmlElement._element.querySelectorAll("[l-content]"), htmlElement);
-            assignAttributes(htmlElement._element.querySelectorAll("[l-a-href]"), "href", htmlElement);
-            assignAttributes(htmlElement._element.querySelectorAll("[l-a-id]"), "id", htmlElement);
-            assignAttributes(htmlElement._element.querySelectorAll("[l-a-class]"), "class", htmlElement);
-            assignEventListeners(htmlElement._element.querySelectorAll("[l-onclick]"), "click", htmlElement);
-            assignEventListeners(htmlElement._element.querySelectorAll("[l-onload]"), "load", htmlElement);
-        }
-        function assignContent(elements, htmlElement) {
-            if (!elements && elements.length > 0) return;
-            elements.forEach(e => {
-                const value = htmlElement[e.getAttribute("l-content")];
-                if (value == undefined) return;
-                if (htmlElement[e.getAttribute("l-map")] && Array.isArray(value)) {
-                    e.innerHTML = mapTo(htmlElement[e.getAttribute("l-map")] ?? "", value);
-                    initChildrens(e, value);
-                }
-                else e.textContent = value;
-                // e.removeAttribute("l-content");
-            });
-            
-            return;
-            
-            function mapTo(templateProp, array) { 
-                const template = app.find(e => e.path == templateProp);
-                if (!template) throw new Error(`Template ${templateProp} does not exists`);
-                if (!array || !Array.isArray(array)) throw new Error("l-content property must be an array for use with l-map");
-                template.contents[0].attributes["l-app-element-id"] = templateProp;
-                return array.map(e => elementToHTML(template, app, e)).join("");
-            }
-        }
-        function assignAttributes(elements, attribute, htmlElement) {
-            if (!elements && elements.length > 0) return;
-            elements.forEach(e => {
-                const value = htmlElement[e.getAttribute("l-a-"+attribute)];
-                if (value == undefined) return;
-                e.setAttribute(attribute, value);
-                // e.removeAttribute("l-a-"+attribute);
-            });
-        }
-        function assignEventListeners(elements, eventType, htmlElement) {
-            if (!elements && elements.length > 0) return;
-            elements.forEach(e => {
-                const method = htmlElement[e.getAttribute("l-on"+eventType)];
-                if (method == undefined) return;
-                if (!method || typeof method != "function") throw new Error(`Function '${e.getAttribute("l-on"+eventType)}' doesn't exist.`);
-                if (eventType == "load") {
-                    onLoadMethods.push(()=>htmlElement._exec(method, { event, element: htmlElement }));
-                }
-                else e["on"+eventType] = event => htmlElement._exec(method, { event });
-                // e.removeAttribute("l-on"+eventType);
-            });
-        }
-        function elementToHTML(element, app, props) {
-            if (!Array.isArray(element.contents)) return `${element.contents}`;
-            let htmlStr = "";
-            element.contents.forEach(e => {
-                replaceWithImported();
-    
-                if (typeof e.contents == "string") htmlStr += `<${e.tagName}${attributesToString(e.attributes)}>${e.contents}</${e.tagName}>`;
-                else if (Array.isArray(e.contents)) htmlStr += `<${e.tagName}${attributesToString(e.attributes)}>${elementToHTML(e, app, e.props ?? props)}</${e.tagName}>`;
-                else htmlStr += `<${e.tagName}${attributesToString(e.attributes)} />`;
 
-                function replaceWithImported() {
-                    if (!e.tagName[0].match(/[A-Z]/)) return;
-                    const templateProp = props[e.tagName];
-                    if (!templateProp) return;
-                    const imported = app.find(e => e.path == templateProp.value);
-                    if (!imported) return;
-                    const importedElement = imported.contents[0];
-                    importedElement.attributes["l-app-element-id"] = imported.path;
-                    importedElement.props = imported.props;
-                    const children = e.contents;
-                    e = importedElement;
-                    if (children) props.children = children;
-                }
-            });
-            return htmlStr;
-    
-            function attributesToString(att) {
-                if (typeof att != "object") return "";
-                let str = "";
-                for (const [key, value] of Object.entries(att)) {
-                    str += ` ${key}="${value}"`;
-                }
-                return str;
-            }
-        }
+export class LdxAppElement {
+    constructor(parent) {
+        this._parent = parent;
+        this._children = [];
+        this._id = this._parent ? this._parent._children.length : 0;
+        this._path = this.getPath().join(".");
     }
-});
+    getPath() {
+        if (!this._parent) return [];
+        const arr = this._parent.getPath();
+        arr.push(this._id);
+        return arr;
+    }
+    use(pathToLdx) {
+        const ldx = app[pathToLdx];
+        if (!ldx) throw new Error("No ldx element found for path: " + pathToLdx);
+        const ldxElement = new LdxAppElement(this)
+        this._children.push(ldxElement);
+        ldx.toString = ldx.bind(ldxElement);
+        return ldx.bind(ldxElement);
+    }
+    onload(callback) {
+        this.onload = callback;
+        return "";
+    }
+    def(name, value) {
+        const protectedProperties = ["_parent", "_children", "_id", "getPath", "use", "onload", "def"];
+        if (protectedProperties.includes(name)) {
+            console.error("Cannot define protected property: " + name);
+            return "";
+        }
+        if (typeof value === "function") {
+            value = value.bind(this);
+            value.toString = () => `window.getInstance('${this._path}', window.appTree).${name}()`;
+        }
+        this[name] = value;
+        return "";
+    }
+}
+
+export function getInstance(pathToInstance, appTree) {
+    pathToInstance = pathToInstance.split(".");
+    for (let i = 0; i < pathToInstance.length; i++) {
+        appTree = appTree._children[pathToInstance[i]];
+        if (!appTree) return null;
+    }
+    return appTree;
+}
+
+if (typeof document != "undefined") {
+    document.addEventListener("DOMContentLoaded", function() {
+        let pageRoute = window.location.pathname.split(".")[0];
+        if (pageRoute == "/") pageRoute = "index.ldx";
+        window.appTree = new LdxAppElement();
+        window.appTree.use(pageRoute)();
+        window.getInstance = getInstance;
+    });
+}

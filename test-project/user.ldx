@@ -1,10 +1,4 @@
-<li>
-    <fieldset l-onload="test">
-        <legend l-content="name"></legend>
-        <div l-content="email"></div>
-    </fieldset>
-
-    <func name="test">
-        console.log(this)
-    </func>
+<li id="${ this._id }">
+    <p>${ args.name }</p>
+    <p>${ args.email }</p>
 </li>

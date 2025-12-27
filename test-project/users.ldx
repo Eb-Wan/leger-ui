@@ -1,15 +1,13 @@
-<div>
-    <template name="User" path="user.ldx" />
-    <ul l-onload="loadUsers" l-content="users" l-map="User"></ul>
+${ this.def("user", this.use("user.ldx")) }
+${
+    this.onload(() => {
+        return fetch("https://jsonplaceholder.typicode.com/users")
+        .then(e => e.json())
+        .then(e => def("users", e))
+        .catch(e => console.log(e))
+    })
+}
 
-    <func name="loadUsers">
-        const element = this;
-        fetch("https://jsonplaceholder.typicode.com/users")
-        .then(e=> e.json())
-        .then(e => {
-            element.users = e;
-            element._exec();
-        })
-        .catch(e => console.error(e));
-    </func>
-</div>
+<ul>
+    ${ (this.users && this.users.map) ? this.users.map(e => this.user(e)) : "" }
+</ul>

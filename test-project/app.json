@@ -1,0 +1,5 @@
+{
+    "router": [
+        { "route":"index", "path":"index.ldx" }
+    ]
+}
