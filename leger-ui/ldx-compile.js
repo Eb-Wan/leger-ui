@@ -6,7 +6,7 @@ function ldxCompile(path) {
     const app = {};
     let str = "";
    
-    const runner = readFileSync(compilerDirectory+"/ldx-runner.js", "utf8");
+    const runner = readFileSync(compilerDirectory+"/ldx-runner.js", "utf8").replaceAll(/\s{2,}|\n|\/\/.*$/gm, "");
     const json = JSON.parse(readFileSync(projectDirectory+"/"+path, "utf8"));
     const router = json.router;
 
@@ -17,7 +17,7 @@ function ldxCompile(path) {
     });
 
     for (const [key, value] of Object.entries(app)) {
-        str += `"${key}": function(args) { this._children = []; return \`${ value.replaceAll(/\`/gm, "\`") }\` }, `;
+        str += `"${key}": function(args) { this._children = []; return \`<!-- \${this._path} -->${ value.replaceAll(/\`/gm, "\`") }<!-- /\${this._path} -->\` }, `;
     }
 
     writeFileSync(`${outputDirectory}/${basename(path, ".json")}.js`, `export const app = { ${str.slice(0, -2)} }; ${ runner }`);

@@ -1,10 +1,11 @@
 
 export class LdxAppElement {
-    constructor(parent) {
+    constructor(parent, ldxElement) {
         this._parent = parent;
         this._children = [];
         this._id = this._parent ? this._parent._children.length : 0;
         this._path = this.getPath().join(".");
+        this._ldx = ldxElement;
     }
     getPath() {
         if (!this._parent) return [];
@@ -15,16 +16,19 @@ export class LdxAppElement {
     use(pathToLdx) {
         const ldx = app[pathToLdx];
         if (!ldx) throw new Error("No ldx element found for path: " + pathToLdx);
-        const ldxElement = new LdxAppElement(this)
+        const ldxElement = new LdxAppElement(this, ldx);
         this._children.push(ldxElement);
-        ldx.toString = ldx.bind(ldxElement);
-        return ldx.bind(ldxElement);
+        const boundLdx = ldx.bind(ldxElement);
+        boundLdx.toString = boundLdx;
+        return boundLdx;
     }
     onload(callback) {
-        this.onload = callback;
+        if (typeof this_onload == "function") return "";
+        this._onload = callback;
         return "";
     }
     def(name, value) {
+        if (typeof this[name] != "undefined") return "";
         const protectedProperties = ["_parent", "_children", "_id", "getPath", "use", "onload", "def"];
         if (protectedProperties.includes(name)) {
             console.error("Cannot define protected property: " + name);
@@ -36,6 +40,12 @@ export class LdxAppElement {
         }
         this[name] = value;
         return "";
+    }
+    render() {
+        if (typeof document == "undefined") return "";
+
+        // Quite inneficient
+        document.body.innerHTML = document.body.innerHTML.replace(RegExp(`<!-- ${this._path} -->.*<!-- /${this._path} -->`, "m"), this._ldx.call(this));
     }
 }
 
@@ -52,8 +62,17 @@ if (typeof document != "undefined") {
     document.addEventListener("DOMContentLoaded", function() {
         let pageRoute = window.location.pathname.split(".")[0];
         if (pageRoute == "/") pageRoute = "index.ldx";
+        pageRoute = pageRoute.replace(/^\/+|\/+$/g, "").split(".")[0]+".ldx";
         window.appTree = new LdxAppElement();
         window.appTree.use(pageRoute)();
         window.getInstance = getInstance;
+        onLoadTrigger(window.appTree);
     });
+
+    function onLoadTrigger(appTree) {
+        if (typeof appTree._onload == "function") appTree._onload();
+        for (let i = 0; i < appTree._children.length; i++) {
+            onLoadTrigger(appTree._children[i]);
+        }
+    }
 }

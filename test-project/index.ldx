@@ -1,7 +1,8 @@
-${
-    this.def("counter", this.use("button.ldx")),
-    this.def("users", this.use("users.ldx"))
-}
+<!DOCTYPE html>
+<html>
 ${ this.use("head.ldx")({ title: "Index" }) }
-${ this.counter() }
-${ this.users() }
+<body>
+    ${ this.use("button.ldx") }
+    ${ this.use("users.ldx") }
+</body>
+</html>
