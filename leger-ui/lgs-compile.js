@@ -1,18 +1,18 @@
-import { existsSync, readFileSync, readdirSync, writeFileSync } from 'fs';
+import { copyFileSync, existsSync, readFileSync, readdirSync, writeFileSync } from 'fs';
 import { basename, dirname, resolve } from 'path';
 import { projectDirectory, outputDirectory, compilerDirectory } from './leger-ui.js';
 
-function ldxCompile(path) {
+function lgsCompile(path) {
     const app = {};
     let str = "";
    
-    const runner = readFileSync(compilerDirectory+"/ldx-runner.js", "utf8").replaceAll(/\s{2,}|\n|\/\/.*$/gm, "");
+    const runner = readFileSync(compilerDirectory+"/lgs-runner.js", "utf8").replaceAll(/\s{2,}|\n|\/\/.*$/gm, "");
     const json = JSON.parse(readFileSync(projectDirectory+"/"+path, "utf8"));
     const router = json.router;
 
     readdirSync(projectDirectory).forEach(file => {
-        if (!file.includes(".ldx")) return;
-        const contents = readFileSync(`${projectDirectory}/${file}`, "utf8");
+        if (!file.includes(".lgs")) return;
+        const contents = lgsToJsTemplate(readFileSync(`${projectDirectory}/${file}`, "utf8"));
         app[file] = contents.replaceAll(/\s{2,}|\n/gm, "");
     });
 
@@ -29,17 +29,26 @@ function ldxCompile(path) {
 }
 
 async function compileRoute(routeElement, appPath) {
-    const { LdxAppElement } = await import(resolve(appPath));
+    const { LgsAppElement } = await import(resolve(appPath));
 
     if (!routeElement.route) throw new Error("Route is not defined");
     if (!routeElement.path) throw new Error("Path is not defined");
+    if (routeElement.include || Array.isArray(routeElement.include)) routeElement.include.forEach(e => {
+        if (!existsSync(dirname(`${outputDirectory}/${e}`)))
+            mkdirSync(dirname(`${outputDirectory}/${e}`), { recursive: true });
+        copyFileSync(resolve(projectDirectory+"/"+e), `${outputDirectory}/${e}`);
+    });
 
-    const appTree = new LdxAppElement();
+    const appTree = new LgsAppElement();
 
-    if (!existsSync(dirname(`${outputDirectory}/${routeElement.route}.html`)))
-        mkdirSync(dirname(`${outputDirectory}/${routeElement.route}.html`), { recursive: true });
+    if (!existsSync(dirname(`${outputDirectory}/${routeElement.route}`)))
+        mkdirSync(dirname(`${outputDirectory}/${routeElement.route}`), { recursive: true });
     const str = appTree.use(routeElement.path)();
     writeFileSync(`${outputDirectory}/${routeElement.route}.html`, str);
 }
 
-export { ldxCompile };
+function lgsToJsTemplate(lgs) {
+    return lgs;
+}
+
+export { lgsCompile };

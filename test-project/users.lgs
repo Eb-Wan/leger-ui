@@ -1,0 +1,14 @@
+${ this.def("user", this.use("user.lgs")) }
+${ this.def("users", []) }
+${
+    this.onload(() => {
+        fetch("https://jsonplaceholder.typicode.com/users")
+        .then(e => e.json())
+        .then(e => this.set("users", e))
+        .catch(e => console.log(e))
+    })
+}
+
+<ul>
+    ${ this.users.map(e => this.user(e)).join("") }
+</ul>

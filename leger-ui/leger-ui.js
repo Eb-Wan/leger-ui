@@ -1,6 +1,6 @@
 import { existsSync, watch } from "fs";
 import { dirname, basename } from "path";
-import { ldxCompile } from "./ldx-compile.js";
+import { lgsCompile } from "./lgs-compile.js";
 import { spawn } from "child_process";
 
 const parsedArgs = parseArgs(process.argv);
@@ -56,7 +56,7 @@ compile();
 
 function compile() {
     try {
-        ldxCompile(basename(parsedArgs.flaggedArgs["-i"]), params);
+        lgsCompile(basename(parsedArgs.flaggedArgs["-i"]), params);
         exitFinished();
     } catch (error) {
         exitError(error.message ?? "An error occured", error)

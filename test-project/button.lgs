@@ -1,6 +1,6 @@
 ${
     this.def("num", 0),
-    this.def("count", () => { this.num++; this.render(); })
+    this.def("count", () => { this.set("num", this.num + 1) })
 }
 
 <button onclick="${ this.count }">${ this.num }</button>

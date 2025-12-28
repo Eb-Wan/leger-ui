@@ -1,5 +1,5 @@
 {
     "router": [
-        { "route":"index", "path":"index.ldx" }
+        { "route":"index", "path":"index.lgs" }
     ]
 }

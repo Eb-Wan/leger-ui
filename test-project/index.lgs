@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html>
+${ this.use("head.lgs")({ title: "Index" }) }
+<body>
+    ${ this.use("button.lgs") }
+    ${ this.use("users.lgs") }
+</body>
+</html>

@@ -1,8 +1,0 @@
-<!DOCTYPE html>
-<html>
-${ this.use("head.ldx")({ title: "Index" }) }
-<body>
-    ${ this.use("button.ldx") }
-    ${ this.use("users.ldx") }
-</body>
-</html>

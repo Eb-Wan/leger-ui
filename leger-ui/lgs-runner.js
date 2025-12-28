@@ -1,11 +1,11 @@
 
-export class LdxAppElement {
-    constructor(parent, ldxElement) {
+export class LgsAppElement {
+    constructor(parent, lgsElement) {
         this._parent = parent;
         this._children = [];
         this._id = this._parent ? this._parent._children.length : 0;
         this._path = this.getPath().join(".");
-        this._ldx = ldxElement;
+        this._lgs = lgsElement;
     }
     getPath() {
         if (!this._parent) return [];
@@ -13,14 +13,14 @@ export class LdxAppElement {
         arr.push(this._id);
         return arr;
     }
-    use(pathToLdx) {
-        const ldx = app[pathToLdx];
-        if (!ldx) throw new Error("No ldx element found for path: " + pathToLdx);
-        const ldxElement = new LdxAppElement(this, ldx);
-        this._children.push(ldxElement);
-        const boundLdx = ldx.bind(ldxElement);
-        boundLdx.toString = boundLdx;
-        return boundLdx;
+    use(pathToLgs) {
+        const lgs = app[pathToLgs];
+        if (!lgs) throw new Error("No lgs element found for path: " + pathToLgs);
+        const lgsElement = new LgsAppElement(this, lgs);
+        this._children.push(lgsElement);
+        const boundLgs = lgs.bind(lgsElement);
+        boundLgs.toString = boundLgs;
+        return boundLgs;
     }
     onload(callback) {
         if (typeof this_onload == "function") return "";
@@ -41,11 +41,17 @@ export class LdxAppElement {
         this[name] = value;
         return "";
     }
+    set (name, value) {
+        if (typeof this[name] == "undefined") return "";
+        this[name] = value;
+        this.render();
+        return "";
+    }
     render() {
         if (typeof document == "undefined") return "";
 
         // Quite inneficient
-        document.body.innerHTML = document.body.innerHTML.replace(RegExp(`<!-- ${this._path} -->.*<!-- /${this._path} -->`, "m"), this._ldx.call(this));
+        document.body.innerHTML = document.body.innerHTML.replace(RegExp(`<!-- ${this._path} -->.*<!-- /${this._path} -->`, "m"), this._lgs.call(this));
     }
 }
 
@@ -61,9 +67,9 @@ export function getInstance(pathToInstance, appTree) {
 if (typeof document != "undefined") {
     document.addEventListener("DOMContentLoaded", function() {
         let pageRoute = window.location.pathname.split(".")[0];
-        if (pageRoute == "/") pageRoute = "index.ldx";
-        pageRoute = pageRoute.replace(/^\/+|\/+$/g, "").split(".")[0]+".ldx";
-        window.appTree = new LdxAppElement();
+        if (pageRoute == "/") pageRoute = "index.lgs";
+        pageRoute = pageRoute.replace(/^\/+|\/+$/g, "").split(".")[0]+".lgs";
+        window.appTree = new LgsAppElement();
         window.appTree.use(pageRoute)();
         window.getInstance = getInstance;
         onLoadTrigger(window.appTree);
