@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, readFileSync, readdirSync, writeFileSync } from 'fs';
+import { copyFileSync, existsSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from 'fs';
 import { basename, dirname, resolve } from 'path';
 import { projectDirectory, outputDirectory, compilerDirectory } from './leger-ui.js';
 
@@ -17,20 +17,20 @@ function lgsCompile(path) {
     });
 
     for (const [key, value] of Object.entries(app)) {
-        str += `"${key}": function(args) { this._children = []; return \`<!-- \${this._path} -->${ value.replaceAll(/\`/gm, "\`") }<!-- /\${this._path} -->\` }, `;
+        str += `"${key}": function(args) { this._children = []; return \`<!-- \${this._path} -->${ value.replaceAll(/\/\*[\s\S]*?\*\//gm, "").replaceAll(/\`/gm, "\`") }<!-- /\${this._path} -->\` }, `;
     }
-
     writeFileSync(`${outputDirectory}/${basename(path, ".json")}.js`, `export const app = { ${str.slice(0, -2)} }; ${ runner }`);
     
     if (!router) throw new Error("Router is not defined");
     if (!Array.isArray(router)) throw new Error("Router must be an array");
     router.forEach(e => compileRoute(e, `${outputDirectory}/${basename(path, ".json")}.js`));
+    console.log(`\nLEGER-COMPILER : Done compiling ${basename(path, ".json")}.js`);
+
     return;
 }
 
 async function compileRoute(routeElement, appPath) {
-    const { LgsAppElement } = await import(resolve(appPath));
-
+    const { App } = await import(`${resolve(appPath)}?t=${Date.now()}`);
     if (!routeElement.route) throw new Error("Route is not defined");
     if (!routeElement.path) throw new Error("Path is not defined");
     if (routeElement.include || Array.isArray(routeElement.include)) routeElement.include.forEach(e => {
@@ -39,12 +39,13 @@ async function compileRoute(routeElement, appPath) {
         copyFileSync(resolve(projectDirectory+"/"+e), `${outputDirectory}/${e}`);
     });
 
-    const appTree = new LgsAppElement();
-
     if (!existsSync(dirname(`${outputDirectory}/${routeElement.route}`)))
         mkdirSync(dirname(`${outputDirectory}/${routeElement.route}`), { recursive: true });
-    const str = appTree.use(routeElement.path)();
+
+    const app = new App(true);
+    const str = app.renderDocument({ path: routeElement.path });
     writeFileSync(`${outputDirectory}/${routeElement.route}.html`, str);
+    console.log(`\nLEGER-COMPILER : Done compiling ${routeElement.route}.html`);
 }
 
 function lgsToJsTemplate(lgs) {

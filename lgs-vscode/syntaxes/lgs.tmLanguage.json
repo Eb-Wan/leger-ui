@@ -5,10 +5,20 @@
     "lgs"
   ],
   "patterns": [
+    { "include": "#comment" },
     { "include": "#expression" },
     { "include": "text.html.basic" }
   ],
   "repository": {
+    "comment": {
+      "patterns": [
+        {
+          "name": "comment.block.lgs",
+          "begin": "\\/\\*",
+          "end": "\\*\\/"
+        }
+      ]
+    },
     "expression": {
       "name": "meta.expression.lgs",
       "begin": "\\$\\{",

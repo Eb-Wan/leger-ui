@@ -1,8 +1,3 @@
-<!DOCTYPE html>
-<html>
-${ this.use("head.lgs")({ title: "Index" }) }
-<body>
-    ${ this.use("button.lgs") }
-    ${ this.use("users.lgs") }
-</body>
-</html>
+${ this.oncompile(() => this._app.setDocumentProperties({ title: "Index", lang: "fr" })) }
+${ this.use("button.lgs") }
+${ this.use("users.lgs") }

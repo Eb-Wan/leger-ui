@@ -1,4 +1,3 @@
-${ this.def("user", this.use("user.lgs")) }
 ${ this.def("users", []) }
 ${
     this.onload(() => {
@@ -10,5 +9,5 @@ ${
 }
 
 <ul>
-    ${ this.users.map(e => this.user(e)).join("") }
+    ${ this.users.map(e => this.use("user.lgs")(e)).join("") }
 </ul>

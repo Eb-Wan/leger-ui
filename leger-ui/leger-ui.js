@@ -31,14 +31,12 @@ if (parsedArgs.flags.includes("--dev")) {
         process.exit(1);
     }
 
-    let server = spawn ("npx", ["-y", "http-server"], { cwd: outputDirectory });
+    let server = spawn ("npx", ["-y", "http-server", "-c-1"], { cwd: outputDirectory });
     parsedArgs.flags.push("-w");
-    watch(projectDirectory, { recursive: true }, () => {
-        compile();
-    });
+    let watcher = watch(projectDirectory, { recursive: true }, onUpdate);
 
     server.stdout.on('data', (data) => {
-     console.log(`Server stdout: ${data}`);
+        console.log(`Server stdout: ${data}`);
     });
     server.stderr.on('data', (data) => {
         console.error(`Server stderr: ${data}`);
@@ -46,6 +44,14 @@ if (parsedArgs.flags.includes("--dev")) {
     server.on('close', (code) => {
         console.log(`Server process exited with code ${code}`);
     });
+
+    function onUpdate() {
+        compile();
+        watcher.close();
+        setTimeout(() => {
+            watcher = watch(projectDirectory, { recursive: true }, onUpdate);
+        }, 1000);
+    }
 } else if (parsedArgs.flags.includes("-w")) {
     watch(projectDirectory, { recursive: true }, () => {
         compile();
@@ -57,16 +63,11 @@ compile();
 function compile() {
     try {
         lgsCompile(basename(parsedArgs.flaggedArgs["-i"]), params);
-        exitFinished();
     } catch (error) {
         exitError(error.message ?? "An error occured", error)
     }
 }
 
-function exitFinished() {
-    console.log(`\nLEGER-COMPILER : Done executing ${parsedArgs.flaggedArgs["-i"]} !`)
-    // if (!parsedArgs.flags.includes("-w")) process.exit(0);
-}
 function exitError(message, error) {
     console.log("\nLEGER-COMPILER : "+message+"\n");
     if (error) console.log(error);
