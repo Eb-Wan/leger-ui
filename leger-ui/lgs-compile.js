@@ -17,7 +17,7 @@ function lgsCompile(path) {
     });
 
     for (const [key, value] of Object.entries(app)) {
-        str += `"${key}": function(args) { this._children = []; return \`<!-- \${this._path} -->${ value.replaceAll(/\/\*[\s\S]*?\*\//gm, "").replaceAll(/\`/gm, "\`") }<!-- /\${this._path} -->\` }, `;
+        str += `"${key}": function(args) { this._children = []; return \`<!-- \${this._path} -->${ value.replaceAll(/(?<!\\)\/\*[\s\S]*?\*\//gm, "").replaceAll(/\`/gm, "\`") }<!-- /\${this._path} -->\` }, `;
     }
     writeFileSync(`${outputDirectory}/${basename(path, ".json")}.js`, `export const app = { ${str.slice(0, -2)} }; ${ runner }`);
     

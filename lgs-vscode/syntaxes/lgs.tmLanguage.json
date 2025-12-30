@@ -14,14 +14,14 @@
       "patterns": [
         {
           "name": "comment.block.lgs",
-          "begin": "\\/\\*",
+          "begin": "(?<!\\\\)\\/\\*",
           "end": "\\*\\/"
         }
       ]
     },
     "expression": {
       "name": "meta.expression.lgs",
-      "begin": "\\$\\{",
+      "begin": "(?<!\\\\)\\$\\{",
       "beginCaptures": {
         "0": { "name": "keyword.lgs" }
       },

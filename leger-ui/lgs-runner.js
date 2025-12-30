@@ -4,11 +4,11 @@ export class LgsAppElement {
     #path;
     #lgs;
     #app;
-    constructor(parent, lgsElement, app) {
+    constructor(parent, lgsElement, app, rendered) {
         this.#parent = parent;
         this._children = [];
         this.#id = this.#parent ? this.#parent._children.length : 0;
-        this.#path = this.calculatePath().join(".");
+        this.#path = this.calculatePath().join("-");
         this.#lgs = lgsElement;
         this.#app = app;
     }
@@ -44,8 +44,18 @@ export class LgsAppElement {
         this._onload = callback;
         return "";
     }
+    onmount(callback) {
+        if (typeof this._onmount == "function") return "";
+        this._onmount = callback;
+        return "";
+    }
+    onunmount(callback) {
+        if (typeof this._onunmount == "function") return "";
+        this._onunmount = callback;
+        return "";
+    }
     oncompile(callback) {
-        if (typeof this._onload == "function") return "";
+        if (typeof this._oncompile == "function") return "";
         this._oncompile = callback;
         return "";
     }
@@ -71,8 +81,10 @@ export class LgsAppElement {
     }
     render() {
         if (typeof document == "undefined") return "";
+        this.#app.onUnMountTrigger(this);
         // Quite inneficient
-        document.body.innerHTML = document.body.innerHTML.replace(RegExp(`<!-- ${this.#path} -->.*<!-- /${this.#path} -->`, "m"), this.#lgs.call(this));
+        document.body.innerHTML = document.body.innerHTML.replace(RegExp(`<!-- ${this.#path} -->[\\s\\S]*<!-- /${this.#path} -->`, "gm"), this.#lgs.call(this));
+        this.#app.onMountTrigger(this);
     }
 }
 
@@ -114,13 +126,25 @@ export class App {
     }
     getInstance(pathToInstance) {
         if (!pathToInstance) return this.#appTree;
-        pathToInstance = pathToInstance.split(".");
+        pathToInstance = pathToInstance.split("-");
         let appTree = this.#appTree;
         for (let i = 0; i < pathToInstance.length; i++) {
             appTree = appTree._children[pathToInstance[i]];
             if (!appTree) return null;
         }
         return appTree;
+    }
+    onMountTrigger(appTree) {
+        if (typeof appTree._onmount == "function") appTree._onmount();
+        for (let i = 0; i < appTree._children.length; i++) {
+            this.onMountTrigger(appTree._children[i]);
+        }
+    }
+    onUnMountTrigger(appTree) {
+        if (typeof appTree._onunmount == "function") appTree._onunmount();
+        for (let i = 0; i < appTree._children.length; i++) {
+            this.onUnMountTrigger(appTree._children[i]);
+        }
     }
     onCompileTrigger(appTree) {
         if (typeof appTree._oncompile == "function") appTree._oncompile();
@@ -139,6 +163,7 @@ if (typeof document != "undefined") {
         app.renderDocument({ path: pageRoute });
         window.app = app;
         onLoadTrigger(app.appTree);
+        app.onMountTrigger(app.appTree);
     });
     function onLoadTrigger(appTree) {
         if (typeof appTree._onload == "function") appTree._onload();
