@@ -4,11 +4,12 @@ export class LgsAppElement {
     #path;
     #lgs;
     #app;
-    constructor(parent, lgsElement, app, rendered) {
+    constructor(parent, lgsElement, app) {
         this.#parent = parent;
         this._children = [];
         this.#id = this.#parent ? this.#parent._children.length : 0;
         this.#path = this.calculatePath().join("-");
+        
         this.#lgs = lgsElement;
         this.#app = app;
     }
@@ -29,6 +30,19 @@ export class LgsAppElement {
         const arr = this.#parent.calculatePath();
         arr.push(this.#id);
         return arr;
+    }
+    getContainerElement() {
+        if (typeof document == "undefined") return null;
+        if (!this.#parent) return document.body;
+        let container = document.body;
+        let length = document.body.innerHTML.length;
+        for (const element of this.#parent.getContainerElement().querySelectorAll("*")) {
+            if (element.innerHTML.includes(`<!-- ${this.#path} -->`) && element.innerHTML.length < length){
+                container = element;
+                length = container.innerHTML.length;
+            }
+        }
+        return container;
     }
     use(pathToLgs) {
         const lgs = app[pathToLgs];
@@ -73,17 +87,28 @@ export class LgsAppElement {
         this[name] = value;
         return "";
     }
-    set (name, value) {
+    set (name, value, triggerRender = true) {
         if (typeof this[name] == "undefined") return "";
         this[name] = value;
-        this.render();
+        if (triggerRender === true) this.render();
         return "";
     }
     render() {
         if (typeof document == "undefined") return "";
         this.#app.onUnMountTrigger(this);
-        // Quite inneficient
-        document.body.innerHTML = document.body.innerHTML.replace(RegExp(`<!-- ${this.#path} -->[\\s\\S]*<!-- /${this.#path} -->`, "gm"), this.#lgs.call(this));
+
+        let container = this.getContainerElement();
+        if (document.body == container) {
+            container = document.body;
+            let length = container.length;
+            for (const element of document.body.querySelectorAll("*")) {
+                if (element.innerHTML.includes(`<!-- ${this.#path} -->`) && element.innerHTML.length < length){
+                    container = element;
+                    length = container.innerHTML.length;
+                }
+            }
+        }
+        container.innerHTML = container.innerHTML.replace(RegExp(`<!-- ${this.#path} -->[\\s\\S]*<!-- /${this.#path} -->`, "gm"), this.#lgs.call(this));
         this.#app.onMountTrigger(this);
     }
 }
@@ -154,7 +179,7 @@ export class App {
     }
 }
 
-if (typeof document != "undefined") {
+if (typeof document != "undefined" || typeof app != "object") {
     document.addEventListener("DOMContentLoaded", function() {
         let pageRoute = window.location.pathname.split(".")[0];
         if (pageRoute == "/") pageRoute = "index.lgs";
