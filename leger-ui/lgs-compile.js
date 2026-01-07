@@ -55,6 +55,10 @@ async function compileRoute(routeElement, appPath) {
 }
 
 function lgsToJsTemplate(lgs) {
+    // This function will be used to convert LGS expression to JS template
+    // It is not implemented yet
+    // Support for JS template expressions will be kept as legacy
+    // LGS expressions will just shorthands for JS
     return lgs;
 }
 

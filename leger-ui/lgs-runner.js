@@ -95,7 +95,7 @@ export class LgsAppElement {
     }
     render() {
         if (typeof document == "undefined") return "";
-        this.#app.onUnMountTrigger(this);
+        this._children.forEach(e => this.#app.onUnMountTrigger(e));
 
         let container = this.getContainerElement();
         if (document.body == container) {
@@ -109,7 +109,7 @@ export class LgsAppElement {
             }
         }
         container.innerHTML = container.innerHTML.replace(RegExp(`<!-- ${this.#path} -->[\\s\\S]*<!-- /${this.#path} -->`, "gm"), this.#lgs.call(this));
-        this.#app.onMountTrigger(this);
+        this._children.forEach(e => this.#app.onMountTrigger(e));
     }
 }
 
