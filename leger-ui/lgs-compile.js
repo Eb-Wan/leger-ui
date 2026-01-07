@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from 'fs';
+import { copyFileSync, existsSync, readFileSync, readdirSync, statSync, writeFileSync, mkdirSync } from 'fs';
 import { basename, dirname, resolve } from 'path';
 import { projectDirectory, outputDirectory, compilerDirectory } from './leger-ui.js';
 
@@ -10,11 +10,7 @@ function lgsCompile(path) {
     const json = JSON.parse(readFileSync(projectDirectory+"/"+path, "utf8"));
     const router = json.router;
 
-    readdirSync(projectDirectory).forEach(file => {
-        if (!file.includes(".lgs")) return;
-        const contents = lgsToJsTemplate(readFileSync(`${projectDirectory}/${file}`, "utf8"));
-        app[file] = contents.replaceAll(/\s{2,}|\n/gm, "");
-    });
+    compileDirectory(projectDirectory, app);
 
     for (const [key, value] of Object.entries(app)) {
         str += `"${key}": function(args) { this._children = []; return \`<!-- \${this._path} -->${ value.replaceAll(/(?<!\\)\/\*[\s\S]*?\*\//gm, "").replaceAll(/\`/gm, "\`") }<!-- /\${this._path} -->\` }, `;
@@ -27,6 +23,16 @@ function lgsCompile(path) {
     console.log(`\nLEGER-COMPILER : Done compiling ${basename(path, ".json")}.js`);
 
     return;
+}
+
+function compileDirectory(directory, app, prefix = "") {
+    console.log(`\nLEGER-COMPILER : Compiling ${directory}`);
+    readdirSync(directory).forEach(file => {
+        if (statSync(`${directory}/${file}`).isDirectory()) compileDirectory(`${directory}/${file}`, app, file+"/");
+        if (!file.includes(".lgs")) return;
+        const contents = lgsToJsTemplate(readFileSync(`${directory}/${file}`, "utf8"));
+        app[prefix + file] = contents.replaceAll(/\s{2,}|\n/gm, "");
+    });
 }
 
 async function compileRoute(routeElement, appPath) {
