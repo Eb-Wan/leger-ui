@@ -20,18 +20,18 @@ function lgsCompile(path) {
     if (!router) throw new Error("Router is not defined");
     if (!Array.isArray(router)) throw new Error("Router must be an array");
     router.forEach(e => compileRoute(e, `${outputDirectory}/${basename(path, ".json")}.js`));
-    console.log(`\nLEGER-COMPILER : Done compiling ${basename(path, ".json")}.js`);
+    console.log(`LEGER-COMPILER : Done compiling ${basename(path, ".json")}.js`);
 
     return;
 }
 
 function compileDirectory(directory, app, prefix = "") {
-    console.log(`\nLEGER-COMPILER : Compiling ${directory}`);
+    console.log(`LEGER-COMPILER : Compiling ${directory}`);
     readdirSync(directory).forEach(file => {
         if (statSync(`${directory}/${file}`).isDirectory()) compileDirectory(`${directory}/${file}`, app, file+"/");
         if (!file.includes(".lgs")) return;
         const contents = lgsToJsTemplate(readFileSync(`${directory}/${file}`, "utf8"));
-        app[prefix + file] = contents.replaceAll(/\s{2,}|\n/gm, "");
+        app[prefix + file] = minifyLGS(contents);
     });
 }
 
@@ -51,11 +51,32 @@ async function compileRoute(routeElement, appPath) {
     const app = new App(true);
     const str = app.renderDocument({ path: routeElement.path });
     writeFileSync(`${outputDirectory}/${routeElement.route}.html`, str);
-    console.log(`\nLEGER-COMPILER : Done compiling ${routeElement.route}.html`);
+    console.log(`LEGER-COMPILER : Done rendering ${routeElement.route}.html`);
 }
 
 function lgsToJsTemplate(lgs) {
     return lgs;
+}
+
+function minifyLGS(lgs) {
+    let depth = 0;
+    let buffer = "";
+    let processedLgs = "";
+
+    for (let i = 0; i < lgs.length; i++) {
+        buffer += lgs[i];
+        if (buffer.includes("<pre>")) {
+            processedLgs += buffer;
+            buffer = "";
+            depth++;
+        } else if (depth > 0 && buffer.includes("</pre>")) {
+            processedLgs += buffer.replaceAll(/\n/gm, "\\n").replaceAll(/\t/gm, "\\t").replaceAll(/\s/gm, "\\s");
+            buffer = "";
+            depth--;
+        }
+    }
+    processedLgs += buffer;
+    return processedLgs.replaceAll(/\s{2,}|\n/gm, "").replaceAll(/\\s/gm, " ");
 }
 
 export { lgsCompile };
