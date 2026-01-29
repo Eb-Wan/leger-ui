@@ -179,22 +179,23 @@ export class App {
     }
 }
 
-if (typeof document != "undefined" || typeof app != "object") {
+if (typeof document != "undefined" && typeof app != "undefined") {
     document.addEventListener("DOMContentLoaded", function() {
-        let pageRoute = window.location.pathname.split(".")[0];
+        let pageRoute = window.location.pathname.slice(1);
         if (pageRoute == "/") pageRoute = "index";
         pageRoute = config.router.find(e => e.route == pageRoute);
         if (!pageRoute) {
-            pageRoute = "404";
-            pageRoute = config.router.find(e => e.route == pageRoute);
+            pageRoute = config.router.find(e => e.route == "404");
             if (!pageRoute) throw new Error("No 404 page defined in the router");
         }
         pageRoute = pageRoute.path;
-        const appInstance = new App();
-        appInstance.renderDocument({ path: pageRoute });
-        window.appInstance = appInstance;
-        onLoadTrigger(appInstance.appTree);
-        appInstance.onMountTrigger(appInstance.appTree);
+        if (pageRoute) {
+            const appInstance = new App();
+            appInstance.renderDocument({ path: pageRoute });
+            window.app = appInstance;
+            onLoadTrigger(appInstance.appTree);
+            appInstance.onMountTrigger(appInstance.appTree);
+        }
     });
     function onLoadTrigger(appTree) {
         if (typeof appTree._onload == "function") appTree._onload();
