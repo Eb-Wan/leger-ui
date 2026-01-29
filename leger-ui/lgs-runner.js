@@ -182,13 +182,19 @@ export class App {
 if (typeof document != "undefined" || typeof app != "object") {
     document.addEventListener("DOMContentLoaded", function() {
         let pageRoute = window.location.pathname.split(".")[0];
-        if (pageRoute == "/") pageRoute = "index.lgs";
-        pageRoute = pageRoute.replace(/^\/+|\/+$/g, "").split(".")[0]+".lgs";
-        const app = new App();
-        app.renderDocument({ path: pageRoute });
-        window.app = app;
-        onLoadTrigger(app.appTree);
-        app.onMountTrigger(app.appTree);
+        if (pageRoute == "/") pageRoute = "index";
+        pageRoute = config.router.find(e => e.route == pageRoute);
+        if (!pageRoute) {
+            pageRoute = "404";
+            pageRoute = config.router.find(e => e.route == pageRoute);
+            if (!pageRoute) throw new Error("No 404 page defined in the router");
+        }
+        pageRoute = pageRoute.path;
+        const appInstance = new App();
+        appInstance.renderDocument({ path: pageRoute });
+        window.appInstance = appInstance;
+        onLoadTrigger(appInstance.appTree);
+        appInstance.onMountTrigger(appInstance.appTree);
     });
     function onLoadTrigger(appTree) {
         if (typeof appTree._onload == "function") appTree._onload();

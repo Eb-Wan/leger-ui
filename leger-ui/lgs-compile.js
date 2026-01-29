@@ -15,7 +15,7 @@ function lgsCompile(path) {
     for (const [key, value] of Object.entries(app)) {
         str += `"${key}": function(args) { this._children = []; return \`<!-- \${this._path} -->${ value.replaceAll(/(?<!\\)\/\*[\s\S]*?\*\//gm, "").replaceAll(/\`/gm, "\`") }<!-- /\${this._path} -->\` }, `;
     }
-    writeFileSync(`${outputDirectory}/${basename(path, ".json")}.js`, `export const app = { ${str.slice(0, -2)} }; ${ runner }`);
+    writeFileSync(`${outputDirectory}/${basename(path, ".json")}.js`, `export const app = { ${str.slice(0, -2)} }; const config = ${ JSON.stringify(json) }; ${ runner }`);
     
     if (!router) throw new Error("Router is not defined");
     if (!Array.isArray(router)) throw new Error("Router must be an array");
@@ -28,7 +28,7 @@ function lgsCompile(path) {
 function compileDirectory(directory, app, prefix = "") {
     console.log(`LEGER-COMPILER : Compiling ${directory}`);
     readdirSync(directory).forEach(file => {
-        if (statSync(`${directory}/${file}`).isDirectory()) compileDirectory(`${directory}/${file}`, app, file+"/");
+        if (statSync(`${directory}/${file}`).isDirectory()) compileDirectory(`${directory}/${file}`, app, prefix+file+"/");
         if (!file.includes(".lgs")) return;
         const contents = lgsToJsTemplate(readFileSync(`${directory}/${file}`, "utf8"));
         app[prefix + file] = minifyLGS(contents);
