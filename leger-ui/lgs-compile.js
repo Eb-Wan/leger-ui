@@ -36,22 +36,26 @@ function compileDirectory(directory, app, prefix = "") {
 }
 
 async function compileRoute(routeElement, appPath) {
-    const { App } = await import(`${resolve(appPath)}?t=${Date.now()}`);
-    if (!routeElement.route) throw new Error("Route is not defined");
-    if (!routeElement.path) throw new Error("Path is not defined");
-    if (routeElement.include || Array.isArray(routeElement.include)) routeElement.include.forEach(e => {
-        if (!existsSync(dirname(`${outputDirectory}/${e}`)))
-            mkdirSync(dirname(`${outputDirectory}/${e}`), { recursive: true });
-        copyFileSync(resolve(projectDirectory+"/"+e), `${outputDirectory}/${e}`);
-    });
-
-    if (!existsSync(dirname(`${outputDirectory}/${routeElement.route}`)))
-        mkdirSync(dirname(`${outputDirectory}/${routeElement.route}`), { recursive: true });
-
-    const app = new App(true);
-    const str = app.renderDocument({ path: routeElement.path });
-    writeFileSync(`${outputDirectory}/${routeElement.route}.html`, str);
-    console.log(`LEGER-COMPILER : Done rendering ${routeElement.route}.html`);
+    try {
+        const { App } = await import(`${resolve(appPath)}?t=${Date.now()}`);
+        if (!routeElement.route) throw new Error("Route is not defined");
+        if (!routeElement.path) throw new Error("Path is not defined");
+        if (routeElement.include || Array.isArray(routeElement.include)) routeElement.include.forEach(e => {
+            if (!existsSync(dirname(`${outputDirectory}/${e}`)))
+                mkdirSync(dirname(`${outputDirectory}/${e}`), { recursive: true });
+            copyFileSync(resolve(projectDirectory+"/"+e), `${outputDirectory}/${e}`);
+        });
+    
+        if (!existsSync(dirname(`${outputDirectory}/${routeElement.route}`)))
+            mkdirSync(dirname(`${outputDirectory}/${routeElement.route}`), { recursive: true });
+    
+        const app = new App(true);
+        const str = app.renderDocument({ path: routeElement.path });
+        writeFileSync(`${outputDirectory}/${routeElement.route}.html`, str);
+        console.log(`LEGER-COMPILER : Done rendering ${routeElement.route}.html`);
+    } catch (error) {
+        console.error("LEGER-COMPILER : ERROR while compiling app", error);
+    }
 }
 
 function lgsToJsTemplate(lgs) {

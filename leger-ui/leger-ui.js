@@ -24,6 +24,7 @@ const params = { ...JSON.parse(parsedArgs.flaggedArgs["-a"] ? parsedArgs.flagged
 const compilerDirectory = dirname(process.argv[1]);
 const projectDirectory = dirname(parsedArgs.flaggedArgs["-i"]);
 const outputDirectory = parsedArgs.flaggedArgs["-o"] ? parsedArgs.flaggedArgs["-o"] : dirname(parsedArgs.flaggedArgs["-i"]);
+let killServer = () => null;
 
 if (parsedArgs.flags.includes("--dev")) {
     if (!outputDirectory.trim().match(/^[A-Za-z0-9\/.~_-\s]+$/)) {
@@ -31,7 +32,7 @@ if (parsedArgs.flags.includes("--dev")) {
         process.exit(1);
     }
 
-    let server = spawn ("npx", ["-y", "http-server", "-c-1"], { cwd: outputDirectory });
+    const server = spawn ("npx", ["-y", "http-server", "-c-1"], { cwd: outputDirectory });
     parsedArgs.flags.push("-w");
     let watcher = watch(projectDirectory, { recursive: true }, onUpdate);
 
@@ -45,6 +46,9 @@ if (parsedArgs.flags.includes("--dev")) {
         console.log(`Server process exited with code ${code}`);
     });
 
+    if (server.pid) killServer = () => process.kill(server.pid);
+    else killServer = () => null;
+    
     function onUpdate() {
         compile();
         watcher.close();
@@ -92,4 +96,4 @@ function parseArgs(array) {
     return parsedArgs;
 }
 
-export { projectDirectory, outputDirectory, compilerDirectory };
+export { projectDirectory, outputDirectory, compilerDirectory, killServer };
