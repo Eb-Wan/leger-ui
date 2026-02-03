@@ -4,6 +4,7 @@ export class LgsAppElement {
     #path;
     #lgs;
     #app;
+    #args;
     constructor(parent, lgsElement, app) {
         this.#parent = parent;
         this._children = [];
@@ -12,6 +13,9 @@ export class LgsAppElement {
         
         this.#lgs = lgsElement;
         this.#app = app;
+    }
+    get _args() {
+        return this.#args;
     }
     get _parent() {
         return this.#parent;
@@ -90,10 +94,11 @@ export class LgsAppElement {
     set (name, value, triggerRender = true) {
         if (typeof this[name] == "undefined") return "";
         this[name] = value;
-        if (triggerRender === true) this.render();
+        if (triggerRender === true) this.render(this.#args);
         return "";
     }
-    render() {
+    render(...args) {
+        if (args.length) this.#args = args;
         if (typeof document == "undefined") return "";
         this._children.forEach(e => this.#app.onUnMountTrigger(e));
 
@@ -102,13 +107,13 @@ export class LgsAppElement {
             container = document.body;
             let length = container.length;
             for (const element of document.body.querySelectorAll("*")) {
-                if (element.innerHTML.includes(`<!-- ${this.#path} -->`) && element.innerHTML.length < length){
+                if (element.innerHTML.includes(`<!-- ${this.#path} -->`) && element.innerHTML.length < length) {
                     container = element;
                     length = container.innerHTML.length;
                 }
             }
         }
-        container.innerHTML = container.innerHTML.replace(RegExp(`<!-- ${this.#path} -->[\\s\\S]*<!-- /${this.#path} -->`, "gm"), this.#lgs.call(this));
+        container.innerHTML = container.innerHTML.replace(RegExp(`<!-- ${this.#path} -->[\\s\\S]*<!-- /${this.#path} -->`, "gm"), this.#lgs.call(this, ...args));
         this._children.forEach(e => this.#app.onMountTrigger(e));
     }
 }
