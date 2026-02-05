@@ -13,13 +13,13 @@ function lgsCompile(path) {
     compileDirectory(projectDirectory, app);
 
     for (const [key, value] of Object.entries(app)) {
-        str += `"${key}": function(args) { this._children = []; return \`<!-- \${this._path} -->${ value.replaceAll(/(?<!\\)\/\*[\s\S]*?\*\//gm, "").replaceAll(/\`/gm, "\`") }<!-- /\${this._path} -->\` }, `;
+        str += `"${key}": function(args = {}) { this._children = []; return \`<!-- \${this._path} -->${ value.replaceAll(/(?<!\\)\/\*[\s\S]*?\*\//gm, "").replaceAll(/\`/gm, "\`") }<!-- /\${this._path} -->\` }, `;
     }
     writeFileSync(`${outputDirectory}/${basename(path, ".json")}.js`, `export const app = { ${str.slice(0, -2)} }; const config = ${ JSON.stringify(json) }; ${ runner }`);
     
     if (!router) throw new Error("Router is not defined");
     if (!Array.isArray(router)) throw new Error("Router must be an array");
-    router.forEach(e => compileRoute(e, `${outputDirectory}/${basename(path, ".json")}.js`));
+    router.forEach(e => renderRoute(e, `${outputDirectory}/${basename(path, ".json")}.js`));
     console.log(`LEGER-COMPILER : Done compiling ${basename(path, ".json")}.js`);
 
     return;
@@ -35,7 +35,7 @@ function compileDirectory(directory, app, prefix = "") {
     });
 }
 
-async function compileRoute(routeElement, appPath) {
+async function renderRoute(routeElement, appPath) {
     try {
         const { App } = await import(`${resolve(appPath)}?t=${Date.now()}`);
         if (!routeElement.route) throw new Error("Route is not defined");
@@ -54,7 +54,7 @@ async function compileRoute(routeElement, appPath) {
         writeFileSync(`${outputDirectory}/${routeElement.route}.html`, str);
         console.log(`LEGER-COMPILER : Done rendering ${routeElement.route}.html`);
     } catch (error) {
-        console.error("LEGER-COMPILER : ERROR while compiling app", error);
+        console.error("LEGER-COMPILER : ERROR while rendering app :", error);
     }
 }
 

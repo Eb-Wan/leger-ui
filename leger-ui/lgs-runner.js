@@ -5,7 +5,7 @@ export class LgsAppElement {
     #lgs;
     #app;
     #args;
-    constructor(parent, lgsElement, app) {
+    constructor(parent, lgsElement, app, args = {}) {
         this.#parent = parent;
         this._children = [];
         this.#id = this.#parent ? this.#parent._children.length : 0;
@@ -13,6 +13,7 @@ export class LgsAppElement {
         
         this.#lgs = lgsElement;
         this.#app = app;
+        this.#args = args;
     }
     get _args() {
         return this.#args;
@@ -48,12 +49,12 @@ export class LgsAppElement {
         }
         return container;
     }
-    use(pathToLgs) {
+    use(pathToLgs, args = {}) {
         const lgs = app[pathToLgs];
         if (!lgs) throw new Error("No lgs element found for path: " + pathToLgs);
-        const lgsElement = new LgsAppElement(this, lgs, this.#app);
+        const lgsElement = new LgsAppElement(this, lgs, this.#app, args);
         this._children.push(lgsElement);
-        const boundLgs = lgs.bind(lgsElement);
+        const boundLgs = lgs.bind(lgsElement, args);
         boundLgs.toString = boundLgs;
         return boundLgs;
     }
@@ -97,8 +98,9 @@ export class LgsAppElement {
         if (triggerRender === true) this.render(this.#args);
         return "";
     }
-    render(...args) {
-        if (args.length) this.#args = args;
+    render(args) {
+        if (typeof args != "undefined" && typeof args != "object") throw new Error("Typeof args should be object");
+        if (typeof args != "undefined" && Object.keys(args)) this.#args = args;
         if (typeof document == "undefined") return "";
         this._children.forEach(e => this.#app.onUnMountTrigger(e));
 
@@ -113,7 +115,7 @@ export class LgsAppElement {
                 }
             }
         }
-        container.innerHTML = container.innerHTML.replace(RegExp(`<!-- ${this.#path} -->[\\s\\S]*<!-- /${this.#path} -->`, "gm"), this.#lgs.call(this, ...args));
+        container.innerHTML = container.innerHTML.replace(RegExp(`<!-- ${this.#path} -->[\\s\\S]*<!-- /${this.#path} -->`, "gm"), this.#lgs.call(this, this.#args));
         this._children.forEach(e => this.#app.onMountTrigger(e));
     }
 }
