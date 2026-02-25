@@ -123,11 +123,13 @@ export class LgsAppElement {
 export class App {
     #head;
     #documentProps;
+    #globals;
     #appTree;
     #compile;
-    constructor(compile = false) {
+    constructor(globals, compile = false) {
         this.#appTree = new LgsAppElement(undefined, () => "", this);
         this.#documentProps = {};
+        this.#globals = globals ?? {};
         this.#compile = compile;
     }
     get appTree() {
@@ -136,16 +138,19 @@ export class App {
     get documentProps() {
         return this.#documentProps;
     }
+    get globals() {
+        return this.#globals;
+    }
     renderDocument(args) {
         this.#documentProps = { ...this.#documentProps, ...args };
         if (!args.path) throw new Error("Path is not defined");
-
+        
         const body = args.path ? this.#appTree.use(args.path)() : "";
         if (this.#compile) this.onCompileTrigger(this.#appTree);
         
         const defaultHead = `<title>${ this.#documentProps.title || "Leger-UI app" }</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="${ this.#documentProps.cssSrc || "style.css" }"><script src="${ this.#documentProps.appSrc || "app.js" }" type="module"></script>`;
         const head = this.#head ? this.#head(this.#documentProps) : defaultHead;
-
+        
         const document = `<!DOCTYPE html><html lang="${ this.#documentProps.lang || "en" }"><head>${ head }</head><body>${ body }</body></html>`;
         return document;
     }
@@ -197,7 +202,7 @@ if (typeof document != "undefined" && typeof app != "undefined") {
         }
         pageRoute = pageRoute.path;
         if (pageRoute) {
-            const appInstance = new App();
+            const appInstance = new App(config.globals ?? {}, false);
             appInstance.renderDocument({ path: pageRoute });
             window.app = appInstance;
             onLoadTrigger(appInstance.appTree);
