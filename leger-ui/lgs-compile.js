@@ -6,7 +6,7 @@ function lgsCompile(path) {
     const app = {};
     let str = "";
    
-    const runner = readFileSync(compilerDirectory+"/lgs-runner.js", "utf8").replaceAll(/\s{2,}|\n|\/\/.*$/gm, "");
+    const runner = readFileSync(compilerDirectory+"/lgs-runner.js", "utf8").replaceAll(/[\r\t\f\v ]{2,}|\/\/.*$/gm, "").replaceAll(/\n/gm, " ");
     const json = JSON.parse(readFileSync(projectDirectory+"/"+path, "utf8"));
     const router = json.router;
 
@@ -84,7 +84,7 @@ function minifyLGS(lgs) {
         }
     }
     processedLgs += buffer;
-    return processedLgs.replaceAll(/\s{2,}|\n/gm, "").replaceAll(/\\s/gm, " ");
+    return processedLgs.replaceAll(/[\r\t\f\v ]{2,}/gm, "").replaceAll(/\n/gm, " ").replaceAll(/\\s/gm, " ");
 }
 
 export { lgsCompile };
