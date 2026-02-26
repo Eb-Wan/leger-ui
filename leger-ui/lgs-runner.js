@@ -5,6 +5,7 @@ export class LgsAppElement {
     #lgs;
     #app;
     #args;
+    #container;
     constructor(parent, lgsElement, app, args = {}) {
         this.#parent = parent;
         this._children = [];
@@ -14,6 +15,7 @@ export class LgsAppElement {
         this.#lgs = lgsElement;
         this.#app = app;
         this.#args = args;
+        this.#container = this.getContainerElement();
     }
     get _args() {
         return this.#args;
@@ -37,6 +39,10 @@ export class LgsAppElement {
         return arr;
     }
     getContainerElement() {
+        if (this.#container && this.#container.innerHTML.includes(`<!-- ${this.#path} -->`)) {
+            return this.#container;
+        }
+
         if (typeof document == "undefined") return null;
         if (!this.#parent) return document.body;
         let container = document.body;
