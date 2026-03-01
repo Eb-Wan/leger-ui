@@ -5,7 +5,6 @@ export class LgsAppElement {
     #lgs;
     #app;
     #args;
-    #container;
     constructor(parent, lgsElement, app, args = {}) {
         this.#parent = parent;
         this._children = [];
@@ -15,7 +14,6 @@ export class LgsAppElement {
         this.#lgs = lgsElement;
         this.#app = app;
         this.#args = args;
-        this.#container = this.getContainerElement();
     }
     get _args() {
         return this.#args;
@@ -39,10 +37,6 @@ export class LgsAppElement {
         return arr;
     }
     getContainerElement() {
-        if (this.#container && this.#container.innerHTML.includes(`<!-- ${this.#path} -->`)) {
-            return this.#container;
-        }
-
         if (typeof document == "undefined") return null;
         if (!this.#parent) return document.body;
         let container = document.body;
@@ -63,6 +57,11 @@ export class LgsAppElement {
         const boundLgs = lgs.bind(lgsElement, args);
         boundLgs.toString = boundLgs;
         return boundLgs;
+    }
+    onrender(callback) {
+        if (typeof this._onrender == "function") return "";
+        this._onrender = callback;
+        return "";
     }
     onload(callback) {
         if (typeof this._onload == "function") return "";
@@ -122,6 +121,7 @@ export class LgsAppElement {
             }
         }
         container.innerHTML = container.innerHTML.replace(RegExp(`<!-- ${this.#path} -->[\\s\\S]*<!-- /${this.#path} -->`, "gm"), this.#lgs.call(this, this.#args));
+        if (typeof this._onrender == "function") this._onrender();
         this._children.forEach(e => this.#app.onMountTrigger(e));
     }
 }
@@ -179,6 +179,7 @@ export class App {
     }
     onMountTrigger(appTree) {
         if (typeof appTree._onmount == "function") appTree._onmount();
+        if (typeof appTree._onrender == "function") appTree._onrender();
         for (let i = 0; i < appTree._children.length; i++) {
             this.onMountTrigger(appTree._children[i]);
         }
