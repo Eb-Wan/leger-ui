@@ -1,13 +1,15 @@
-${ this.def("users", []) }
-${
-    this.onload(() => {
-        fetch("https://jsonplaceholder.typicode.com/users")
-        .then(e => e.json())
-        .then(e => this.set("users", e))
-        .catch(e => console.log(e))
-    })
-}
+<template name="main">
+    ${ this.def("users", []) }
+    ${
+        this.onload(() => {
+            fetch("https://jsonplaceholder.typicode.com/users")
+            .then(e => e.json())
+            .then(e => this.set("users", e))
+            .catch(e => console.log(e))
+        })
+    }
 
-<ul>
-    ${ this.users.map(e => this.use("user.lgs")(e)).join("") }
-</ul>
+    <ul>
+        ${ this.users.map(e => this.use("user.lgs")(e)).join("") }
+    </ul>
+</template>

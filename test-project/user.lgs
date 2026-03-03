@@ -1,4 +1,6 @@
-<li id="${ this._id }">
-    <p>${ args.name }</p>
-    <p>${ args.email }</p>
-</li>
+<template name="main">
+    <li id="${ this._id }">
+        <p>${ args.name }</p>
+        <p>${ args.email }</p>
+    </li>
+</template>

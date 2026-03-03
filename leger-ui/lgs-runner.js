@@ -1,42 +1,90 @@
-export class LgsAppElement {
+class Component {
     #parent;
-    #id;
-    #path;
-    #lgs;
     #app;
     #args;
-    constructor(parent, lgsElement, app, args = {}) {
+    #children = [];
+    #instanceOf;
+    #path;
+    constructor(path, parent, app, args = {}) {
+        this.#instanceOf = path;
         this.#parent = parent;
-        this._children = [];
-        this.#id = this.#parent ? this.#parent._children.length : 0;
-        this.#path = this.calculatePath().join("-");
-        
-        this.#lgs = lgsElement;
         this.#app = app;
         this.#args = args;
+        this.#path = parent.path+"."+parent._children.indexOf(this);
+
+        this.#include(path);
     }
+
     get _args() {
-        return this.#args;
+        this.#args;
+    }
+    get _app() {
+        this.#app;
+    }
+    get _children() {
+        return this.#children;
     }
     get _parent() {
         return this.#parent;
     }
-    get _id() {
-        return this.#id;
-    }
     get _path() {
         return this.#path;
     }
-    get _app() {
-        return this.#app;
+    get _instanceOf() {
+        return this.#instanceOf;
     }
-    calculatePath() {
-        if (!this.#parent) return [];
-        const arr = this.#parent.calculatePath();
-        arr.push(this.#id);
-        return arr;
+
+    #include(path) {
+        const component = components[path];
+        if (!component) throw new Error("No component " + path);
+        for (const [key, value] of Object.entries(component)) {
+            this[key] = value.bind(this);
+            this[key].toString = () => `app.getInstance('${this.#path}').${key}({ event })`;
+
+        }
     }
-    getContainerElement() {
+    render(path, args) {
+        const instance = new Component(path, this, this.#app, args);
+       
+        if (!instance.onrender && !instance.main) throw new Error(`Component ${ path } has no onrender methods nor main template`);
+        if (!instance.onrender) instance.onrender = instance.main;
+
+        this.#children.push(instance);
+
+        console.log(instance);
+
+        return instance.onrender(args);
+    }
+    update() {
+        if (typeof document == "undefined") return;
+        let container = this.getContainerElement();
+        this.#children.forEach(e => this._app.functionCallRecursive(e, "onunmount"));
+        container.innerHTML = container.innerHTML.replace(RegExp(`<!-- ${this.#path} -->[\\s\\S]*<!-- /${this.#path} -->`, "gm"), `<!-- ${this.#path} -->${this.onrender(this.#args)}<!-- /${this.#path} -->`);
+    }
+    get(path) {
+        const component = components[path];
+        if (!component) throw new Error("No component " + path);
+        for (const [key, value] of Object.entries(component)) {
+            component[key] = value.bind(this);
+        }
+        return component;
+    }
+    def(name, value) {
+        if (typeof this[name] != "undefined") return "";
+        if (typeof value === "function") {
+            value = value.bind(this);
+            value.toString = () => `app.getInstance('${this.#path}').${name}(event)`;
+        }
+        this[name] = value;
+        return "";
+    }
+    set (name, value, triggerRender = true) {
+        if (typeof this[name] == "undefined") return "";
+        this[name] = value;
+        if (triggerRender === true) this.use(this.#args);
+        return "";
+    }
+    getContainer() {
         if (typeof document == "undefined") return null;
         if (!this.#parent) return document.body;
         let container = document.body;
@@ -49,156 +97,74 @@ export class LgsAppElement {
         }
         return container;
     }
-    use(pathToLgs, args = {}) {
-        const lgs = app[pathToLgs];
-        if (!lgs) throw new Error("No lgs element found for path: " + pathToLgs);
-        const lgsElement = new LgsAppElement(this, lgs, this.#app, args);
-        this._children.push(lgsElement);
-        const boundLgs = lgs.bind(lgsElement, args);
-        boundLgs.toString = boundLgs;
-        return boundLgs;
-    }
-    onrender(callback) {
-        if (typeof this._onrender == "function") return "";
-        this._onrender = callback;
-        return "";
-    }
-    onload(callback) {
-        if (typeof this._onload == "function") return "";
-        this._onload = callback;
-        return "";
-    }
-    onmount(callback) {
-        if (typeof this._onmount == "function") return "";
-        this._onmount = callback;
-        return "";
-    }
-    onunmount(callback) {
-        if (typeof this._onunmount == "function") return "";
-        this._onunmount = callback;
-        return "";
-    }
-    oncompile(callback) {
-        if (typeof this._oncompile == "function") return "";
-        this._oncompile = callback;
-        return "";
-    }
-    def(name, value) {
-        if (typeof this[name] != "undefined") return "";
-        const protectedProperties = ["getPath", "use", "onload", "def"];
-        if (protectedProperties.includes(name)) {
-            console.error("Cannot define protected property: " + name);
-            return "";
-        }
-        if (typeof value === "function") {
-            value = value.bind(this);
-            value.toString = () => `app.getInstance('${this.#path}').${name}(event)`;
-        }
-        this[name] = value;
-        return "";
-    }
-    set (name, value, triggerRender = true) {
-        if (typeof this[name] == "undefined") return "";
-        this[name] = value;
-        if (triggerRender === true) this.render(this.#args);
-        return "";
-    }
-    render(args) {
-        if (typeof args != "undefined" && typeof args != "object") throw new Error("Typeof args should be object");
-        if (typeof args != "undefined" && Object.keys(args)) this.#args = args;
-        if (typeof document == "undefined") return "";
-        this._children.forEach(e => this.#app.onUnMountTrigger(e));
-
-        let container = this.getContainerElement();
-        if (document.body == container) {
-            container = document.body;
-            let length = container.length;
-            for (const element of document.body.querySelectorAll("*")) {
-                if (element.innerHTML.includes(`<!-- ${this.#path} -->`) && element.innerHTML.length < length) {
-                    container = element;
-                    length = container.innerHTML.length;
-                }
-            }
-        }
-        container.innerHTML = container.innerHTML.replace(RegExp(`<!-- ${this.#path} -->[\\s\\S]*<!-- /${this.#path} -->`, "gm"), this.#lgs.call(this, this.#args));
-        if (typeof this._onrender == "function") this._onrender();
-        this._children.forEach(e => this.#app.onMountTrigger(e));
-    }
-}
+};
 
 export class App {
-    #head;
-    #documentProps;
+    #children = [];
     #globals;
-    #appTree;
-    #compile;
-    constructor(globals, compile = false) {
-        this.#appTree = new LgsAppElement(undefined, () => "", this);
-        this.#documentProps = {};
-        this.#globals = globals ?? {};
-        this.#compile = compile;
+    #head;
+    
+    constructor(path, globals = {}) {
+        this.#globals = { root: path, ...globals };
     }
-    get appTree() {
-        return this.#appTree;
+    get _children() {
+        return this.#children;
     }
-    get documentProps() {
-        return this.#documentProps;
-    }
-    get globals() {
+    get _globals() {
         return this.#globals;
     }
-    renderDocument(args) {
-        this.#documentProps = { ...this.#documentProps, ...args };
-        if (!args.path) throw new Error("Path is not defined");
-        
-        const body = args.path ? this.#appTree.use(args.path)() : "";
-        if (this.#compile) this.onCompileTrigger(this.#appTree);
-        
-        const defaultHead = `<title>${ this.#documentProps.title || "Leger-UI app" }</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="${ this.#documentProps.cssSrc || "style.css" }"><script src="${ this.#documentProps.appSrc || "app.js" }" type="module"></script>`;
-        const head = this.#head ? this.#head(this.#documentProps) : defaultHead;
-        
-        const document = `<!DOCTYPE html><html lang="${ this.#documentProps.lang || "en" }"><head>${ head }</head><body>${ body }</body></html>`;
-        return document;
+    get _head() {
+        return this.#head;
     }
-    setDocumentProperties(props) {
-        this.#documentProps = { ...this.#documentProps, ...props };
+
+    get _path() {
         return "";
     }
-    setHeadComponent(component) {
-        this.#head = this.appTree.use(component);
+
+    set _head(path) {
+        const component = components[path];
+        if (!component) throw new Error("No component " + path);
+        const method = component["main"];
+        if (typeof method != "function") throw new Error(`Component ${path} has no main function or template`);
+        return method.bind(this);
+    }
+    set _globals(props) {
+        this.#globals = { ...this.#globals, ...props };
+    }
+
+    renderDocument () {
+        const instance = new Component(this.#globals.root, this, this);
+        if (!instance.onrender && !instance.main) throw new Error(`Component ${ path } has no onrender methods nor main template`);
+        if (!instance.onrender) instance.onrender = instance.main.bind(instance);
+        this.#children.push(instance);
+
+        const body = instance.onrender();
+        
+        const defaultHead = `<title>${ this.#globals.title || "Leger-UI app" }</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="${ this.#globals.cssSrc || "style.css" }"><script src="${ this.#globals.appSrc || "app.js" }" type="module"></script>`;
+        const head = this.#head ? this.#head(this.#globals) : defaultHead;
+        
+        const document = `<!DOCTYPE html><html lang="${ this.#globals.lang || "en" }"><head>${ head }</head><body>${ body }</body></html>`;
+        return document;
+    }
+    functionCallRecursive(component, name) {
+        if (typeof component[name] == "function") component[name]();
+        for (let i = 0; i < appTree._children.length; i++) {
+            this.functionCallRecursive(component._children[i], name);
+        }
     }
     getInstance(pathToInstance) {
-        if (!pathToInstance) return this.#appTree;
+        if (!pathToInstance) return this.#children;
         pathToInstance = pathToInstance.split("-");
-        let appTree = this.#appTree;
+        let children = this.#children;
         for (let i = 0; i < pathToInstance.length; i++) {
-            appTree = appTree._children[pathToInstance[i]];
-            if (!appTree) return null;
+            children = children._children[pathToInstance[i]];
+            if (!children) return null;
         }
-        return appTree;
-    }
-    onMountTrigger(appTree) {
-        if (typeof appTree._onmount == "function") appTree._onmount();
-        if (typeof appTree._onrender == "function") appTree._onrender();
-        for (let i = 0; i < appTree._children.length; i++) {
-            this.onMountTrigger(appTree._children[i]);
-        }
-    }
-    onUnMountTrigger(appTree) {
-        if (typeof appTree._onunmount == "function") appTree._onunmount();
-        for (let i = 0; i < appTree._children.length; i++) {
-            this.onUnMountTrigger(appTree._children[i]);
-        }
-    }
-    onCompileTrigger(appTree) {
-        if (typeof appTree._oncompile == "function") appTree._oncompile();
-        for (let i = 0; i < appTree._children.length; i++) {
-            this.onCompileTrigger(appTree._children[i]);
-        }
+        return children;
     }
 }
 
-if (typeof document != "undefined" && typeof app != "undefined") {
+if (typeof document != "undefined" && typeof components != "undefined") {
     document.addEventListener("DOMContentLoaded", function() {
         let pageRoute = window.location.pathname.slice(1);
         if (pageRoute == "/") pageRoute = "index";
@@ -209,17 +175,10 @@ if (typeof document != "undefined" && typeof app != "undefined") {
         }
         pageRoute = pageRoute.path;
         if (pageRoute) {
-            const appInstance = new App(config.globals ?? {}, false);
-            appInstance.renderDocument({ path: pageRoute });
+            const appInstance = new App(pageRoute, config.globals);
+            appInstance.renderDocument();
+            appInstance.functionCallRecursive(appInstance._children, "onload");
             window.app = appInstance;
-            onLoadTrigger(appInstance.appTree);
-            appInstance.onMountTrigger(appInstance.appTree);
         }
     });
-    function onLoadTrigger(appTree) {
-        if (typeof appTree._onload == "function") appTree._onload();
-        for (let i = 0; i < appTree._children.length; i++) {
-            onLoadTrigger(appTree._children[i]);
-        }
-    }
 }

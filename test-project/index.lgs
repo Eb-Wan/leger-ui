@@ -1,250 +1,255 @@
-${ this.oncompile(() => this._app.setDocumentProperties({ title: "Index", lang: "fr" })) }
-<div>
-    <h1>Leger-UI Test</h1>
-    <p>This is a button : <span>${ this.use("button.lgs") }</span></p>
-</div>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
-<span>${ this.use("button.lgs") }</span>
+<script name="onload">
+    this._app._globals = { title: "Index", lang: "fr" };
+</script>
 
-<ul>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-    <li>${ this.use("users.lgs") }</li>
-</ul>
+<template name="main">
+    <div>
+        <h1>Leger-UI Test</h1>
+        <p>This is a button : <span>${ this.render("button.lgs") }</span></p>
+    </div>
+    /* <span>${ this.use("button.lgs") }</span> */
+    /* <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+    <span>${ this.use("button.lgs") }</span>
+
+    <ul>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+        <li>${ this.use("users.lgs") }</li>
+    </ul> */
+</template>

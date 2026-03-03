@@ -1,6 +1,9 @@
-${
-    this.def("num", 0),
-    this.def("count", () => { this.set("num", this.num + 1) })
-}
+<script name="onrender">
+    this.def("num", 0);
+    this.def("count", () => { this.set("num", this.num + 1) });
+    return this.main();
+</script>
 
-<button onclick="${ this.count }">${ this.num }</button>
+<template name="main">
+    <button onclick="${ this.count }">${ this.num }</button>
+</template>

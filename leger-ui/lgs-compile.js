@@ -1,22 +1,24 @@
 import { copyFileSync, existsSync, readFileSync, readdirSync, statSync, writeFileSync, mkdirSync } from 'fs';
 import { basename, dirname, resolve } from 'path';
 import { projectDirectory, outputDirectory, compilerDirectory } from './leger-ui.js';
+import { xmlParser } from './xml-parser.js';
 
 function lgsCompile(path) {
     const app = {};
-    let str = "";
+    const str = [];
    
     const runner = readFileSync(compilerDirectory+"/lgs-runner.js", "utf8").replaceAll(/[\r\t\f\v ]{2,}|\/\/.*$/gm, "").replaceAll(/\n/gm, " ");
     const json = JSON.parse(readFileSync(projectDirectory+"/"+path, "utf8"));
     const router = json.router;
 
     compileDirectory(projectDirectory, app);
-
-    for (const [key, value] of Object.entries(app)) {
-        str += `"${key}": function(args = {}) { this._children = []; return \`<!-- \${this._path} -->${ value.replaceAll(/(?<!\\)\/\*[\s\S]*?\*\//gm, "").replaceAll(/\`/gm, "\`") }<!-- /\${this._path} -->\` }, `;
-    }
-    writeFileSync(`${outputDirectory}/${basename(path, ".json")}.js`, `export const app = { ${str.slice(0, -2)} }; const config = ${ JSON.stringify(json) }; ${ runner }`);
     
+    for (const [key, value] of Object.entries(app)) {
+        str.push(`"${key}": { ${value} }`);
+    }
+
+    writeFileSync(`${outputDirectory}/${basename(path, ".json")}.js`, `export const components = { ${str.join(", ")} }; const config = ${ JSON.stringify(json) }; ${ runner }`);
+
     if (!router) throw new Error("Router is not defined");
     if (!Array.isArray(router)) throw new Error("Router must be an array");
     router.forEach(e => renderRoute(e, `${outputDirectory}/${basename(path, ".json")}.js`, json.globals));
@@ -30,7 +32,7 @@ function compileDirectory(directory, app, prefix = "") {
     readdirSync(directory).forEach(file => {
         if (statSync(`${directory}/${file}`).isDirectory()) compileDirectory(`${directory}/${file}`, app, prefix+file+"/");
         if (!file.includes(".lgs")) return;
-        const contents = lgsToJsTemplate(readFileSync(`${directory}/${file}`, "utf8"));
+        const contents = lgsToJs(readFileSync(`${directory}/${file}`, "utf8"));
         app[prefix + file] = minifyLGS(contents);
     });
 }
@@ -49,20 +51,31 @@ async function renderRoute(routeElement, appPath, globals) {
         if (!existsSync(dirname(`${outputDirectory}/${routeElement.route}`)))
             mkdirSync(dirname(`${outputDirectory}/${routeElement.route}`), { recursive: true });
     
-        const app = new App(globals ?? {}, true);
-        const str = app.renderDocument({ path: routeElement.path });
-        writeFileSync(`${outputDirectory}/${routeElement.route}.html`, str);
+        const app = new App(routeElement.path, globals);
+        console.log(app.renderDocument());
+
+        // TODO : FIX component path error "underfined.-1"
+
+        // const str = app.renderDocument({ path: routeElement.path });
+        // writeFileSync(`${outputDirectory}/${routeElement.route}.html`, str);
         console.log(`LEGER-COMPILER : Done rendering ${routeElement.route}.html`);
     } catch (error) {
-        console.error("LEGER-COMPILER : ERROR while rendering app :", error);
+        console.error(`LEGER-COMPILER : ERROR while rendering ${routeElement.route}.html :`, error);
     }
 }
 
-function lgsToJsTemplate(lgs) {
-    // This function will be used to convert LGS expression to JS template
-    // It is not implemented yet
-    // Support for JS template expressions will be kept as legacy
-    // LGS expressions will just shorthands for JS
+function lgsToJs(lgs) {
+    lgs = xmlParser(lgs.replaceAll(/(?<!\\)\/\*[\s\S]*?\*\//gm, "").replaceAll(/\`/gm, "\\`"));
+
+    lgs = lgs.map(e => {
+        if (!e.attributes.name) throw new Error(`Unamed ${e.tagName} element`)
+        if (lgs.filter(f => f.attributes.name == e.attributes.name).length > 1) throw new Error(`Element "${e.attributes.name}" redeclaration`);
+
+        if (e.tagName == "template") return `${e.attributes.name}: function (args) { return \`${ e.contents }\` }`;
+        else if (e.tagName == "script") return `${e.attributes.name}: function (args) { ${e.contents} }`;
+        else throw new Error(`Invalid "${e.tagName}" element`);
+    }).join(", ");
+
     return lgs;
 }
 
