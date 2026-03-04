@@ -52,12 +52,8 @@ async function renderRoute(routeElement, appPath, globals) {
             mkdirSync(dirname(`${outputDirectory}/${routeElement.route}`), { recursive: true });
     
         const app = new App(routeElement.path, globals);
-        console.log(app.renderDocument());
-
-        // TODO : FIX component path error "underfined.-1"
-
-        // const str = app.renderDocument({ path: routeElement.path });
-        // writeFileSync(`${outputDirectory}/${routeElement.route}.html`, str);
+        const str = app.renderDocument();
+        writeFileSync(`${outputDirectory}/${routeElement.route}.html`, str);
         console.log(`LEGER-COMPILER : Done rendering ${routeElement.route}.html`);
     } catch (error) {
         console.error(`LEGER-COMPILER : ERROR while rendering ${routeElement.route}.html :`, error);

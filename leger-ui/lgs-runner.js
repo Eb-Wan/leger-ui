@@ -10,16 +10,16 @@ class Component {
         this.#parent = parent;
         this.#app = app;
         this.#args = args;
-        this.#path = parent.path+"."+parent._children.indexOf(this);
+        this.#path = parent._path ? parent._path+"."+parent._children.length : parent._children.length.toString();
 
         this.#include(path);
     }
 
     get _args() {
-        this.#args;
+        return this.#args;
     }
     get _app() {
-        this.#app;
+        return this.#app;
     }
     get _children() {
         return this.#children;
@@ -43,21 +43,18 @@ class Component {
 
         }
     }
-    render(path, args) {
+    use(path, args = {}) {
         const instance = new Component(path, this, this.#app, args);
        
         if (!instance.onrender && !instance.main) throw new Error(`Component ${ path } has no onrender methods nor main template`);
         if (!instance.onrender) instance.onrender = instance.main;
-
+        if (typeof instance.onmount == "function")  instance.onmount();
         this.#children.push(instance);
-
-        console.log(instance);
-
-        return instance.onrender(args);
+        return `<!-- ${instance._path} -->${instance.onrender(args)}<!-- /${instance._path} -->`;
     }
     update() {
         if (typeof document == "undefined") return;
-        let container = this.getContainerElement();
+        let container = this.getContainer();
         this.#children.forEach(e => this._app.functionCallRecursive(e, "onunmount"));
         container.innerHTML = container.innerHTML.replace(RegExp(`<!-- ${this.#path} -->[\\s\\S]*<!-- /${this.#path} -->`, "gm"), `<!-- ${this.#path} -->${this.onrender(this.#args)}<!-- /${this.#path} -->`);
     }
@@ -81,15 +78,14 @@ class Component {
     set (name, value, triggerRender = true) {
         if (typeof this[name] == "undefined") return "";
         this[name] = value;
-        if (triggerRender === true) this.use(this.#args);
+        if (triggerRender === true) this.update();
         return "";
     }
     getContainer() {
         if (typeof document == "undefined") return null;
-        if (!this.#parent) return document.body;
         let container = document.body;
         let length = document.body.innerHTML.length;
-        for (const element of this.#parent.getContainerElement().querySelectorAll("*")) {
+        for (const element of this.#parent.getContainer().querySelectorAll("*")) {
             if (element.innerHTML.includes(`<!-- ${this.#path} -->`) && element.innerHTML.length < length){
                 container = element;
                 length = container.innerHTML.length;
@@ -135,7 +131,7 @@ export class App {
     renderDocument () {
         const instance = new Component(this.#globals.root, this, this);
         if (!instance.onrender && !instance.main) throw new Error(`Component ${ path } has no onrender methods nor main template`);
-        if (!instance.onrender) instance.onrender = instance.main.bind(instance);
+        if (!instance.onrender) instance.onrender = instance.main;
         this.#children.push(instance);
 
         const body = instance.onrender();
@@ -143,31 +139,35 @@ export class App {
         const defaultHead = `<title>${ this.#globals.title || "Leger-UI app" }</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="${ this.#globals.cssSrc || "style.css" }"><script src="${ this.#globals.appSrc || "app.js" }" type="module"></script>`;
         const head = this.#head ? this.#head(this.#globals) : defaultHead;
         
-        const document = `<!DOCTYPE html><html lang="${ this.#globals.lang || "en" }"><head>${ head }</head><body>${ body }</body></html>`;
+        const document = `<!DOCTYPE html><html lang="${ this.#globals.lang || "en" }"><head>${ head }</head><body><!-- 0 -->${ body }<!-- /0 --></body></html>`;
         return document;
     }
     functionCallRecursive(component, name) {
         if (typeof component[name] == "function") component[name]();
-        for (let i = 0; i < appTree._children.length; i++) {
+        for (let i = 0; i < component._children.length; i++) {
             this.functionCallRecursive(component._children[i], name);
         }
     }
     getInstance(pathToInstance) {
         if (!pathToInstance) return this.#children;
-        pathToInstance = pathToInstance.split("-");
-        let children = this.#children;
+        pathToInstance = pathToInstance.split(".");
+        let component = this;
         for (let i = 0; i < pathToInstance.length; i++) {
-            children = children._children[pathToInstance[i]];
-            if (!children) return null;
+            component = component._children[pathToInstance[i]];
+            if (!component) return null;
         }
-        return children;
+        return component;
+    }
+    getContainer() {
+        if (typeof document == "undefined") return null;
+        return document.body;
     }
 }
 
 if (typeof document != "undefined" && typeof components != "undefined") {
     document.addEventListener("DOMContentLoaded", function() {
         let pageRoute = window.location.pathname.slice(1);
-        if (pageRoute == "/") pageRoute = "index";
+        if (!pageRoute) pageRoute = "index";
         pageRoute = config.router.find(e => e.route == pageRoute);
         if (!pageRoute) {
             pageRoute = config.router.find(e => e.route == "404");
@@ -176,9 +176,9 @@ if (typeof document != "undefined" && typeof components != "undefined") {
         pageRoute = pageRoute.path;
         if (pageRoute) {
             const appInstance = new App(pageRoute, config.globals);
-            appInstance.renderDocument();
-            appInstance.functionCallRecursive(appInstance._children, "onload");
             window.app = appInstance;
+            appInstance.renderDocument();
+            appInstance.functionCallRecursive(appInstance._children[0], "onload");
         }
     });
 }
