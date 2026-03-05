@@ -52,7 +52,8 @@ async function renderRoute(routeElement, appPath, globals) {
             mkdirSync(dirname(`${outputDirectory}/${routeElement.route}`), { recursive: true });
     
         const app = new App(routeElement.path, globals);
-        const str = app.renderDocument();
+        const str = app.renderDocument(true);
+
         writeFileSync(`${outputDirectory}/${routeElement.route}.html`, str);
         console.log(`LEGER-COMPILER : Done rendering ${routeElement.route}.html`);
     } catch (error) {
@@ -61,15 +62,13 @@ async function renderRoute(routeElement, appPath, globals) {
 }
 
 function lgsToJs(lgs) {
-    lgs = xmlParser(lgs.replaceAll(/(?<!\\)\/\*[\s\S]*?\*\//gm, "").replaceAll(/\`/gm, "\\`"));
-
+    lgs = xmlParser(lgs.replaceAll(/(?<!\\)\/\*[\s\S]*?\*\//gm, ""));
     lgs = lgs.map(e => {
-        if (!e.attributes.name) throw new Error(`Unamed ${e.tagName} element`)
+        if (e.tagName != "template" && e.tagName != "script") throw new Error(`Invalid "${e.tagName}" element`);
+        if (!e.attributes.name) throw new Error(`Unamed ${e.tagName} element`);
         if (lgs.filter(f => f.attributes.name == e.attributes.name).length > 1) throw new Error(`Element "${e.attributes.name}" redeclaration`);
-
         if (e.tagName == "template") return `${e.attributes.name}: function (args) { return \`${ e.contents }\` }`;
-        else if (e.tagName == "script") return `${e.attributes.name}: function (args) { ${e.contents} }`;
-        else throw new Error(`Invalid "${e.tagName}" element`);
+        else if (e.tagName == "script") return `${e.attributes.name}: ${ e.attributes.async == "true" ? "async " : "" }function (args) { ${e.contents} }`;
     }).join(", ");
 
     return lgs;

@@ -12,7 +12,12 @@ class Component {
         this.#args = args;
         this.#path = parent._path ? parent._path+"."+parent._children.length : parent._children.length.toString();
 
-        this.#include(path);
+        const component = components[this.#instanceOf];
+        if (!component) throw new Error("No component " + this.#instanceOf);
+        for (const [key, value] of Object.entries(component)) {
+            this[key] = value.bind(this);
+            this[key].toString = () => `app.getInstance('${this.#path}').${key}({ event })`;
+        }
     }
 
     get _args() {
@@ -33,26 +38,18 @@ class Component {
     get _instanceOf() {
         return this.#instanceOf;
     }
-
-    #include(path) {
-        const component = components[path];
-        if (!component) throw new Error("No component " + path);
-        for (const [key, value] of Object.entries(component)) {
-            this[key] = value.bind(this);
-            this[key].toString = () => `app.getInstance('${this.#path}').${key}({ event })`;
-
-        }
-    }
     use(path, args = {}) {
         const instance = new Component(path, this, this.#app, args);
        
         if (!instance.onrender && !instance.main) throw new Error(`Component ${ path } has no onrender methods nor main template`);
         if (!instance.onrender) instance.onrender = instance.main;
-        if (typeof instance.onmount == "function")  instance.onmount();
+        if (typeof instance.onmount == "function")  instance.onmount(args);
+        if (typeof instance.oncompile == "function" && this.#app._globals.compileTime)  instance.oncompile(args);
         this.#children.push(instance);
         return `<!-- ${instance._path} -->${instance.onrender(args)}<!-- /${instance._path} -->`;
     }
     update() {
+        this.#children = [];
         if (typeof document == "undefined") return;
         let container = this.getContainer();
         this.#children.forEach(e => this._app.functionCallRecursive(e, "onunmount"));
@@ -61,16 +58,17 @@ class Component {
     get(path) {
         const component = components[path];
         if (!component) throw new Error("No component " + path);
+        const methods = {};
         for (const [key, value] of Object.entries(component)) {
-            component[key] = value.bind(this);
+            methods[key] = value.bind(this);
         }
-        return component;
+        return methods;
     }
     def(name, value) {
         if (typeof this[name] != "undefined") return "";
         if (typeof value === "function") {
             value = value.bind(this);
-            value.toString = () => `app.getInstance('${this.#path}').${name}(event)`;
+            value.toString = () => `app.getInstance('${this.#path}').${name}({ event })`;
         }
         this[name] = value;
         return "";
@@ -118,26 +116,36 @@ export class App {
     }
 
     set _head(path) {
-        const component = components[path];
-        if (!component) throw new Error("No component " + path);
-        const method = component["main"];
-        if (typeof method != "function") throw new Error(`Component ${path} has no main function or template`);
-        return method.bind(this);
+        const instance = new Component(path, this, this, this._globals);
+       
+        if (!instance.onrender && !instance.main) throw new Error(`Component ${ path } has no onrender methods nor main template`);
+        if (!instance.onrender) instance.onrender = instance.main;
+        if (typeof instance.onmount == "function")  instance.onmount();
+        this.#head = (instance);
     }
     set _globals(props) {
         this.#globals = { ...this.#globals, ...props };
     }
 
-    renderDocument () {
+    renderDocument (compileTime) {
+        this._globals.compileTime = compileTime === true;
+        this.#children = [];
         const instance = new Component(this.#globals.root, this, this);
         if (!instance.onrender && !instance.main) throw new Error(`Component ${ path } has no onrender methods nor main template`);
         if (!instance.onrender) instance.onrender = instance.main;
-        this.#children.push(instance);
-
-        const body = instance.onrender();
+        if (typeof instance.onmount == "function")  instance.onmount();
+        if (typeof instance.oncompile == "function" && compileTime === true)  instance.oncompile();
+        this.#children = [instance];
         
         const defaultHead = `<title>${ this.#globals.title || "Leger-UI app" }</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="${ this.#globals.cssSrc || "style.css" }"><script src="${ this.#globals.appSrc || "app.js" }" type="module"></script>`;
-        const head = this.#head ? this.#head(this.#globals) : defaultHead;
+        
+        if (this.#head) {
+            if (typeof this.#head.onmount == "function")  this.#head.onmount();
+            if (typeof this.#head.oncompile == "function" && compileTime === true)  this.#head.oncompile();
+        }
+        const head = this.#head && this.#head.onrender ? this.#head.onrender(this.#globals) : defaultHead;
+
+        const body = instance.onrender();
         
         const document = `<!DOCTYPE html><html lang="${ this.#globals.lang || "en" }"><head>${ head }</head><body><!-- 0 -->${ body }<!-- /0 --></body></html>`;
         return document;
@@ -149,7 +157,7 @@ export class App {
         }
     }
     getInstance(pathToInstance) {
-        if (!pathToInstance) return this.#children;
+        if (!pathToInstance) return this.#children[0];
         pathToInstance = pathToInstance.split(".");
         let component = this;
         for (let i = 0; i < pathToInstance.length; i++) {
