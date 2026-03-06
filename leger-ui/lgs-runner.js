@@ -18,6 +18,11 @@ class Component {
             this[key] = value.bind(this);
             this[key].toString = () => `app.getInstance('${this.#path}').${key}({ event })`;
         }
+
+        if (!this.onrender && !this.main) throw new Error(`Component ${ path } has no onrender methods nor main template`);
+        if (!this.onrender) this.onrender = this.main;
+        if (typeof this.onmount == "function") this.onmount();
+        if (typeof this.oncompile == "function" && app._globals.compiling === true) this.oncompile();
     }
 
     get _args() {
@@ -40,11 +45,6 @@ class Component {
     }
     use(path, args = {}) {
         const instance = new Component(path, this, this.#app, args);
-       
-        if (!instance.onrender && !instance.main) throw new Error(`Component ${ path } has no onrender methods nor main template`);
-        if (!instance.onrender) instance.onrender = instance.main;
-        if (typeof instance.onmount == "function")  instance.onmount(args);
-        if (typeof instance.oncompile == "function" && this.#app._globals.compileTime)  instance.oncompile(args);
         this.#children.push(instance);
         return `<!-- ${instance._path} -->${instance.onrender(args)}<!-- /${instance._path} -->`;
     }
@@ -117,32 +117,19 @@ export class App {
 
     set _head(path) {
         const instance = new Component(path, this, this, this._globals);
-       
-        if (!instance.onrender && !instance.main) throw new Error(`Component ${ path } has no onrender methods nor main template`);
-        if (!instance.onrender) instance.onrender = instance.main;
-        if (typeof instance.onmount == "function")  instance.onmount();
         this.#head = (instance);
     }
     set _globals(props) {
         this.#globals = { ...this.#globals, ...props };
     }
 
-    renderDocument (compileTime) {
-        this._globals.compileTime = compileTime === true;
+    renderDocument (compiling) {
+        this._globals.compiling = compiling === true;
         this.#children = [];
         const instance = new Component(this.#globals.root, this, this);
-        if (!instance.onrender && !instance.main) throw new Error(`Component ${ path } has no onrender methods nor main template`);
-        if (!instance.onrender) instance.onrender = instance.main;
-        if (typeof instance.onmount == "function")  instance.onmount();
-        if (typeof instance.oncompile == "function" && compileTime === true)  instance.oncompile();
         this.#children = [instance];
         
         const defaultHead = `<title>${ this.#globals.title || "Leger-UI app" }</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="${ this.#globals.cssSrc || "style.css" }"><script src="${ this.#globals.appSrc || "app.js" }" type="module"></script>`;
-        
-        if (this.#head) {
-            if (typeof this.#head.onmount == "function")  this.#head.onmount();
-            if (typeof this.#head.oncompile == "function" && compileTime === true)  this.#head.oncompile();
-        }
         const head = this.#head && this.#head.onrender ? this.#head.onrender(this.#globals) : defaultHead;
 
         const body = instance.onrender();
