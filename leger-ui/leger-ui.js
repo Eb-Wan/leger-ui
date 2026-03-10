@@ -15,7 +15,8 @@ if (!parsedArgs.flaggedArgs["-i"].includes(".json") ||
     !existsSync(parsedArgs.flaggedArgs["-i"])) {
     exitError("Must be a path to an JSON file.");
 }
- 
+
+if (!parsedArgs.flaggedArgs["-o"]) exitError("No output directory given.");
 if (parsedArgs.flaggedArgs["-o"] && !existsSync(parsedArgs.flaggedArgs["-o"])) {
     exitError("Output directory doesn't exists.");
 }
@@ -23,8 +24,10 @@ if (parsedArgs.flaggedArgs["-o"] && !existsSync(parsedArgs.flaggedArgs["-o"])) {
 const params = { ...JSON.parse(parsedArgs.flaggedArgs["-a"] ? parsedArgs.flaggedArgs["-a"] : "{}") };
 const compilerDirectory = dirname(process.argv[1]);
 const projectDirectory = dirname(parsedArgs.flaggedArgs["-i"]);
-const outputDirectory = parsedArgs.flaggedArgs["-o"] ? parsedArgs.flaggedArgs["-o"] : dirname(parsedArgs.flaggedArgs["-i"]);
+const outputDirectory = parsedArgs.flaggedArgs["-o"];
 let killServer = () => null;
+
+if (projectDirectory == outputDirectory) exitError("Project directory and output directory can't be the same directory");
 
 if (parsedArgs.flags.includes("--dev")) {
     if (!outputDirectory.trim().match(/^[A-Za-z0-9\/.~_-\s]+$/)) {

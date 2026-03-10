@@ -11,6 +11,13 @@ function lgsCompile(path) {
     const json = JSON.parse(readFileSync(projectDirectory+"/"+path, "utf8"));
     const router = json.router;
 
+    if (Array.isArray(json.include)) {
+        json.include.forEach(filename => {
+            // I don't care about the directories for now...
+            copyFileSync(projectDirectory+"/"+filename, outputDirectory+"/"+filename);
+        });
+    }
+
     compileDirectory(projectDirectory, app);
     
     for (const [key, value] of Object.entries(app)) {
