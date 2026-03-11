@@ -16,7 +16,7 @@ class Component {
         if (!component) throw new Error("No component " + this.#instanceOf);
         for (const [key, value] of Object.entries(component)) {
             this[key] = value.bind(this);
-            this[key].toString = () => `app.getInstance('${this.#path}').${key}({ event })`;
+            this[key].toString = (args) => `app.getInstance('${this.#path}').${key}({ event${ args ? ", "+Object.keys(args).map(e => e+": "+args[e]).join(", ") : ""} })`;
         }
 
         if (!this.onrender && !this.main) throw new Error(`Component ${ path } has no onrender methods nor main template`);
@@ -54,6 +54,8 @@ class Component {
         let container = this.getContainer();
         this.#children.forEach(e => this._app.functionCallRecursive(e, "onunmount"));
         container.innerHTML = container.innerHTML.replace(RegExp(`<!-- ${this.#path} -->[\\s\\S]*<!-- /${this.#path} -->`, "gm"), `<!-- ${this.#path} -->${this.onrender(this.#args)}<!-- /${this.#path} -->`);
+        this.#children.forEach(e => this._app.functionCallRecursive(e, "ondone"));
+        if (typeof this.ondone == "function") this.ondone();
     }
     get(path) {
         const component = components[path];
@@ -68,7 +70,7 @@ class Component {
         if (typeof this[name] != "undefined") return "";
         if (typeof value === "function") {
             value = value.bind(this);
-            value.toString = () => `app.getInstance('${this.#path}').${name}({ event })`;
+            value.toString = (args) => `app.getInstance('${this.#path}').${name}({ event${ args ? ", "+Object.keys(args).map(e => e+": "+args[e]).join(", ") : ""} })`;
         }
         this[name] = value;
         return "";
