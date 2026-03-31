@@ -51,9 +51,11 @@ class Component {
     update() {
         this.#children = [];
         if (typeof document == "undefined") return;
-        let container = this.getContainer();
         this.#children.forEach(e => this._app.functionCallRecursive(e, "onunmount"));
-        container.innerHTML = container.innerHTML.replace(RegExp(`<!-- ${this.#path} -->[\\s\\S]*<!-- /${this.#path} -->`, "gm"), `<!-- ${this.#path} -->${this.onrender(this.#args)}<!-- /${this.#path} -->`);
+                
+        const component = document.getElementById(this._path);
+        if (component) component.innerHTML = this.onrender(this.#args);
+
         this.#children.forEach(e => this._app.functionCallRecursive(e, "ondone"));
         if (typeof this.ondone == "function") this.ondone();
     }
@@ -82,20 +84,8 @@ class Component {
         if (triggerRender === true) this.update();
         return "";
     }
-    getContainer() {
-        if (typeof document == "undefined") return null;
-        let container = document.body;
-        let length = document.body.innerHTML.length;
-        for (const element of this.#parent.getContainer().querySelectorAll("*")) {
-            if (element.innerHTML.includes(`<!-- ${this.#path} -->`) && element.innerHTML.length < length){
-                container = element;
-                length = container.innerHTML.length;
-            }
-        }
-        return container;
-    }
     toString() {
-        return `<!-- ${this._path} -->${this.onrender(this._args)}<!-- /${this._path} -->`;
+        return `<l-c id="${this._path}">${this.onrender(this._args)}</l-c>`;
     }
 };
 
@@ -140,7 +130,7 @@ export class App {
 
         const body = instance.onrender();
         
-        const document = `<!DOCTYPE html><html lang="${ this.#globals.lang || "en" }"><head>${ head }</head><body><!-- 0 -->${ body }<!-- /0 --></body></html>`;
+        const document = `<!DOCTYPE html><html lang="${ this.#globals.lang || "en" }"><head>${ head }</head><body id="0">${ body }</body></html>`;
         return document;
     }
     functionCallRecursive(component, name) {
@@ -166,6 +156,11 @@ export class App {
 }
 
 if (typeof document != "undefined" && typeof components != "undefined") {
+    customElements.define("l-c", class extends HTMLElement {
+        connectedCallback() {
+            this.style.display = "contents";
+        }
+    });
     document.addEventListener("DOMContentLoaded", function() {
         let pageRoute = window.location.pathname.slice(1);
         if (!pageRoute) pageRoute = "index";
