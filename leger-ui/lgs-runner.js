@@ -46,7 +46,7 @@ class Component {
     use(path, args = {}) {
         const instance = new Component(path, this, this.#app, args);
         this.#children.push(instance);
-        return `<!-- ${instance._path} -->${instance.onrender(args)}<!-- /${instance._path} -->`;
+        return instance;
     }
     update() {
         this.#children = [];
@@ -63,6 +63,7 @@ class Component {
         const methods = {};
         for (const [key, value] of Object.entries(component)) {
             methods[key] = value.bind(this);
+            methods[key].toString = (args) => `app.getInstance('${this.#path}').${key}({ event${ args ? ", "+Object.keys(args).map(e => e+": "+args[e]).join(", ") : ""} })`;
         }
         return methods;
     }
@@ -92,6 +93,9 @@ class Component {
             }
         }
         return container;
+    }
+    toString() {
+        return `<!-- ${this._path} -->${this.onrender(this._args)}<!-- /${this._path} -->`;
     }
 };
 
