@@ -10,7 +10,7 @@ class Component {
         this.#parent = parent;
         this.#app = app;
         this.#args = args;
-        this.#path = parent._path ? parent._path+"."+parent._children.length : parent._children.length.toString();
+        this.#path = parent._path+"_"+parent._children.length;
 
         const component = components[this.#instanceOf];
         if (!component) throw new Error("No component " + this.#instanceOf);
@@ -50,10 +50,12 @@ class Component {
     }
     update() {
         if (typeof document == "undefined") throw new Error("Cannot update component without the DOM");
-        let container = this.getContainer();
+        const container = this.getContainer();
+        const focusPath = window.getElPath(document.activeElement, container);
         this.#children = [];
         this.#children.forEach(e => this._app.functionCallRecursive(e, "onunmount"));
         container.innerHTML = container.innerHTML.replace(RegExp(`<!-- ${this.#path} -->[\\s\\S]*<!-- /${this.#path} -->`, "gm"), `<!-- ${this.#path} -->${this.onrender(this.#args)}<!-- /${this.#path} -->`);
+        container.querySelector(focusPath)?.focus();
         this.#children.forEach(e => this._app.functionCallRecursive(e, "ondone"));
         if (typeof this.ondone == "function") this.ondone();
     }
@@ -83,7 +85,7 @@ class Component {
         return "";
     }
     ref (name) {
-        const id = this.#path+"."+name;
+        const id = this.#path+"_"+name;
         const previous = this.ondone;
         this.ondone = () => {
             this[name] = document.getElementById(id);
@@ -149,7 +151,7 @@ export class App {
 
         const body = instance.onrender();
         
-        const document = `<!DOCTYPE html><html lang="${ this.#globals.lang || "en" }"><head>${ head }</head><body><!-- 0 -->${ body }<!-- /0 --></body></html>`;
+        const document = `<!DOCTYPE html><html lang="${ this.#globals.lang || "en" }"><head>${ head }</head><body><!-- _0 -->${ body }<!-- /_0 --></body></html>`;
         return document;
     }
     functionCallRecursive(component, name) {
@@ -160,7 +162,7 @@ export class App {
     }
     getInstance(pathToInstance) {
         if (!pathToInstance) return this.#children[0];
-        pathToInstance = pathToInstance.split(".");
+        pathToInstance = pathToInstance.split("_").slice(1);
         let component = this;
         for (let i = 0; i < pathToInstance.length; i++) {
             component = component._children[pathToInstance[i]];
@@ -176,6 +178,29 @@ export class App {
 
 if (typeof document != "undefined" && typeof components != "undefined") {
     document.addEventListener("DOMContentLoaded", function() {
+        window.getElPath = (el, container) => {
+            const stack = [];
+            while (el.parentNode != null) {
+                let sibCount = 0;
+                let sibIndex = 0;
+                for ( let i = 0; i < el.parentNode.childNodes.length; i++ ) {
+                    const sib = el.parentNode.childNodes[i];
+                    if ( sib.nodeName == el.nodeName ) {
+                        if ( sib === el ) sibIndex = sibCount;
+                        sibCount++;
+                    }
+                }
+                if ( el.hasAttribute('id') && el.id != '' ) stack.unshift(el.nodeName.toLowerCase() + '#' + el.id);
+                else if ( sibCount > 1 ) stack.unshift(el.nodeName.toLowerCase() + ':nth-child(' + sibIndex + ')');
+                else stack.unshift(el.nodeName.toLowerCase());
+                el = el.parentNode;
+                if (el.parentNode != container) break;
+            }
+
+            if (stack.length == 0) return "";
+            else if (stack[stack.length - 1].includes("#")) return stack[stack.length - 1];
+            return stack.join(" > ");
+        };
         let pageRoute = window.location.pathname.slice(1);
         if (!pageRoute) pageRoute = "index";
         pageRoute = config.router.find(e => e.route == pageRoute);
