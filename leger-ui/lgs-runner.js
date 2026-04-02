@@ -180,21 +180,11 @@ if (typeof document != "undefined" && typeof components != "undefined") {
     document.addEventListener("DOMContentLoaded", function() {
         window.getElPath = (el, container) => {
             const stack = [];
-            while (el.parentNode != null) {
-                let sibCount = 0;
-                let sibIndex = 0;
-                for ( let i = 0; i < el.parentNode.childNodes.length; i++ ) {
-                    const sib = el.parentNode.childNodes[i];
-                    if ( sib.nodeName == el.nodeName ) {
-                        if ( sib === el ) sibIndex = sibCount;
-                        sibCount++;
-                    }
-                }
+            while (el.parentElement != null) {
                 if ( el.hasAttribute('id') && el.id != '' ) stack.unshift(el.nodeName.toLowerCase() + '#' + el.id);
-                else if ( sibCount > 1 ) stack.unshift(el.nodeName.toLowerCase() + ':nth-child(' + sibIndex + ')');
-                else stack.unshift(el.nodeName.toLowerCase());
-                el = el.parentNode;
-                if (el.parentNode == container) break;
+                else stack.unshift(el.nodeName.toLowerCase() + ':nth-child(' + (Array.from(el.parentElement.children).findIndex(e => e == el) + 1) + ')');
+                el = el.parentElement;
+                if (el.parentElement == container) break;
             }
 
             if (stack.length == 0) return "";
