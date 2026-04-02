@@ -194,7 +194,7 @@ if (typeof document != "undefined" && typeof components != "undefined") {
                 else if ( sibCount > 1 ) stack.unshift(el.nodeName.toLowerCase() + ':nth-child(' + sibIndex + ')');
                 else stack.unshift(el.nodeName.toLowerCase());
                 el = el.parentNode;
-                if (el.parentNode != container) break;
+                if (el.parentNode == container) break;
             }
 
             if (stack.length == 0) return "";
