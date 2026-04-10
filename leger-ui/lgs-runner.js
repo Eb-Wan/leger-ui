@@ -56,8 +56,7 @@ class Component {
         this.#children.forEach(e => this._app.functionCallRecursive(e, "onunmount"));
         container.innerHTML = container.innerHTML.replace(RegExp(`<!-- ${this.#path} -->[\\s\\S]*<!-- /${this.#path} -->`, "gm"), `<!-- ${this.#path} -->${this.onrender(this.#args)}<!-- /${this.#path} -->`);
         container.querySelector(focusPath)?.focus();
-        this.#children.forEach(e => this._app.functionCallRecursive(e, "ondone"));
-        if (typeof this.ondone == "function") this.ondone();
+        this._app.functionCallRecursive(this, "ondone");
     }
     get(path) {
         const component = components[path];
@@ -86,11 +85,7 @@ class Component {
     }
     ref (name) {
         const id = this.#path+"_"+name;
-        const previous = this.ondone;
-        this.ondone = () => {
-            this[name] = document.getElementById(id);
-            if (typeof previous == "function") previous();
-        };
+        if (typeof this[name] == "undefined") Object.defineProperty(this, name, { get: () => document.getElementById(id) });
         return id;
     }
     getContainer() {
