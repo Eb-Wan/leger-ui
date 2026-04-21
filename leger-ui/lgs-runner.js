@@ -56,7 +56,7 @@ class Component {
         this.#children.forEach(e => this._app.functionCallRecursive(e, "onunmount"));
         container.innerHTML = container.innerHTML.replace(RegExp(`<!-- ${this.#path} -->[\\s\\S]*<!-- /${this.#path} -->`, "gm"), `<!-- ${this.#path} -->${this.onrender(this.#args)}<!-- /${this.#path} -->`);
         container.querySelector(focusPath)?.focus();
-        this._app.functionCallRecursive(this, "ondone");
+        this.#children.forEach(e => this._app.functionCallRecursive(e, "onmount"));
     }
     get(path) {
         const component = components[path];
