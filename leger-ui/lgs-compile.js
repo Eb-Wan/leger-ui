@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, readFileSync, readdirSync, statSync, writeFileSync, mkdirSync } from 'fs';
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync, mkdirSync, cpSync } from 'fs';
 import { basename, dirname, resolve } from 'path';
 import { projectDirectory, outputDirectory, compilerDirectory } from './leger-ui.js';
 import { xmlParser } from './xml-parser.js';
@@ -14,7 +14,7 @@ function lgsCompile(path) {
     if (Array.isArray(json.include)) {
         json.include.forEach(filename => {
             // I don't care about the directories for now...
-            copyFileSync(projectDirectory+"/"+filename, outputDirectory+"/"+filename);
+            cpSync(projectDirectory+"/"+filename, outputDirectory+"/"+filename, { recursive: true });
         });
     }
 
@@ -52,7 +52,7 @@ async function renderRoute(routeElement, appPath, globals) {
         if (routeElement.include || Array.isArray(routeElement.include)) routeElement.include.forEach(e => {
             if (!existsSync(dirname(`${outputDirectory}/${e}`)))
                 mkdirSync(dirname(`${outputDirectory}/${e}`), { recursive: true });
-            copyFileSync(resolve(projectDirectory+"/"+e), `${outputDirectory}/${e}`);
+            cpSync(resolve(projectDirectory+"/"+e), `${outputDirectory}/${e}`);
         });
     
         if (!existsSync(dirname(`${outputDirectory}/${routeElement.route}`)))
