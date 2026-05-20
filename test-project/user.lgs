@@ -1,6 +1,3 @@
 <template name="main">
-    <li id="${ this._path }">
-        <p>${ args.name }</p>
-        <p>${ args.email }</p>
-    </li>
+    <li>${ args.name } &lt;${ args.email }&gt;</li>
 </template>
