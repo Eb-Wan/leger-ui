@@ -1,0 +1,23 @@
+{
+  "name": "leger-ui",
+  "version": "4.0.0",
+  "description": "Leger-UI 4 frontend framework",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Eb-Wan/leger-ui.git"
+  },
+  "author": "EB-Wan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Eb-Wan/leger-ui/issues"
+  },
+  "homepage": "https://github.com/Eb-Wan/leger-ui#readme",
+  "dependencies": {
+    "http-server": "^14.1.1",
+    "minify": "^15.3.1"
+  }
+}

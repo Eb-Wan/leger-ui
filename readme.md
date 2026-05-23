@@ -2,10 +2,34 @@
 
 > Don't use Leger-UI in production.
 
-Leger-UI v3 is way more powerful and usable than Leger-UI v2.
-It is pretty good, but it is still not as good as I want it to be, so I'm going back to the drawing board.
+Leger-UI 4 (wip).
 
-The version four will address some of it's problems, primarly the language itelf, wich is not easy to work with.
-Efficiency could also be improved.
+## Roadmap
 
-`node ./leger-ui/leger-ui.js -i ./test-project/app.json -o ./test-output/ --dev`
+- Limit re-renders
+
+  - Basically, when building a big app with Leger-UI 3, I realized than in
+    some cases, the app would trigger multiple renders. While this is an issue
+    that could be fixed by writing better code. I want Leger-UI to be easy, so
+    I will try to prevent these from happening.
+- Better DOM updates
+
+  - This one was really annoying, especially with forms.
+    Consider the following DOM tree
+
+  ```
+      form/
+      ├── input_a
+      ├── input_b
+      └── button
+  ```
+
+  If the user types something in the input_a, if the input_b or the button updates
+  themselves, the entire form's HTML will be replaced, without triggering a render anywhere.
+  Watever was in input_a will be lost.
+- Better LGS
+  Leger script (LGS), is hard to work with. The syntax is not great, it is missing some key features
+  and doesn't make sense overall.
+
+And all of these without making Leger-UI too heavy or complex, as ligtness is kind of the main goal
+of Leger-UI.

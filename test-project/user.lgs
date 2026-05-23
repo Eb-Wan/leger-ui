@@ -1,3 +1,0 @@
-<template name="main">
-    <li>${ args.name } &lt;${ args.email }&gt;</li>
-</template>

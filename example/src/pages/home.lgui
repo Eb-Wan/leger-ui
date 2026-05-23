@@ -1,0 +1,10 @@
+#define $title "Hello world !";
+#include ../components/counter.lgs as Counter;
+
+const home = <>
+    <h1>Hello world !</h1>    
+    <p>This is Leger-UI 4.</p>
+    <Counter />
+</>;
+
+return { onrender: home };

@@ -1,0 +1,8 @@
+#define $title "Page not found";
+
+const notFound = <>
+    <h1>Whoops, this page does not exists...</h1>
+</>;
+
+#render onrender;
+return { onrender: notFound; };
