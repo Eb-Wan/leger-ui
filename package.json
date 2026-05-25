@@ -17,7 +17,6 @@
   },
   "homepage": "https://github.com/Eb-Wan/leger-ui#readme",
   "dependencies": {
-    "http-server": "^14.1.1",
-    "minify": "^15.3.1"
+    "http-server": "^14.1.1"
   }
 }

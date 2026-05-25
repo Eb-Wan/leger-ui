@@ -1,5 +1,5 @@
 #define $title "Hello world !";
-#include ../components/counter.lgs as Counter;
+#include ../components/counter.lgui Counter;
 
 const home = <>
     <h1>Hello world !</h1>    

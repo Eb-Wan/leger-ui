@@ -4,5 +4,4 @@ const notFound = <>
     <h1>Whoops, this page does not exists...</h1>
 </>;
 
-#render onrender;
-return { onrender: notFound; };
+return { onrender: notFound };
