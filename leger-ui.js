@@ -1,3 +1,7 @@
+import { watch } from "fs";
+import { spawn } from "child_process";
+import { dirname, resolve } from "path";
+
 const parsedArgs = parseArgs(process.argv);
 
 function parseArgs(array) {
@@ -19,17 +23,17 @@ function parseArgs(array) {
 }
 
 function main(parsedArgs) {
-    let killServer = () => null;
-
+    const projectDirectory = resolve(dirname(parsedArgs.flaggedArgs["-i"]));
+    const outputDirectory = resolve(parsedArgs.flaggedArgs["-o"]);
     if (parsedArgs.flags.includes("--dev")) {
+        
         if (!outputDirectory.trim().match(/^[A-Za-z0-9\/.~_-\s]+$/)) {
             console.error("Output directory contains illegal characters")
             process.exit(1);
         }
-    
-        const server = spawn ("npx", ["-y", "http-server", "-c-1"], { cwd: outputDirectory });
+        watchProject();
+        const server = spawn(process.argv[0], [resolve(dirname(process.argv[1]))+"/node_modules/http-server/bin/http-server", "-c-1"], { cwd: outputDirectory });
         parsedArgs.flags.push("-w");
-        let watcher = watch(projectDirectory, { recursive: true }, onUpdate);
     
         server.stdout.on('data', (data) => {
             console.log(`Server stdout: ${data}`);
@@ -37,12 +41,17 @@ function main(parsedArgs) {
         server.stderr.on('data', (data) => {
             console.error(`Server stderr: ${data}`);
         });
-        server.on('close', (code) => {
+        server.on('exit', (code) => {
             console.log(`Server process exited with code ${code}`);
         });
+    } else if (parsedArgs.flags.includes("-w")) watchProject();
+
+    compile();
     
-        if (server.pid) killServer = () => process.kill(server.pid);
-        else killServer = () => null;
+    function watchProject() {
+        console.log(`Watching "${ projectDirectory }" for changes`);
+
+        let watcher = watch(projectDirectory, { recursive: true }, onUpdate);
         
         function onUpdate() {
             compile();
@@ -51,12 +60,26 @@ function main(parsedArgs) {
                 watcher = watch(projectDirectory, { recursive: true }, onUpdate);
             }, 1000);
         }
-    } else if (parsedArgs.flags.includes("-w")) {
-        watch(projectDirectory, { recursive: true }, () => {
-            // compile();
-        });
     }
-    // compile();
+}
+
+
+function compile() {
+    const compiler = spawn (process.argv[0], [dirname(process.argv[1])+"/lib/lgui-compiler.js", ...process.argv.slice(2)]);
+
+    compiler.stdout.on('data', (data) => {
+        console.log(data.toString().slice(0, -1));
+    });
+    compiler.stderr.on('data', (data) => {
+        console.error(data.toString().slice(0, -1));
+    });
+    compiler.on('exit', (code) => {
+        console.log(`Compiler exited with code ${code}`);
+    });
+    compiler.on("error", (code) => {
+        console.log(`Compiler exited with code ${code}`);
+    });
+
 }
 
 main(parsedArgs);

@@ -1,28 +1,44 @@
 #export ./assets;
 #export ./.htaccess;
 
-#define lang en;
-#define head head.lgui;
-
 #include ./components/navbar.lgui Navbar;
 #include ./pages/home.lgui Home;
 #include ./pages/not-found.lgui NotFound;
 
+const lang = "en";
+const head = <>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{args.title}</title>
+    <script src="#print appName;" type="module"></script>
+    <script>
+        console.log("Sucess");
+    </script>
+</>;
+
 const page = <>
-    <body>
-        <Navbar/>
-        <main>{ props.component }</main>
-        <p>
-            Test and more tests.
-            <p>Test2</p>
-            Test3
-        </p>
-    </body>
+    <Navbar/>
+    <main>{ args.component._instantiate() }</main>
+    <p>
+        Test and more tests.
+        <p>Test2</p>
+        Test3
+    </p>
 </>;
 
 const router = (args) => {
-    if (args.path == "/") return page(<Home />);
-    else return <><page component={ <NotFound /> } /></>;
+    if (args.path == "/") {
+        this.title = "Home";
+        return page({ component: Home });
+    }
+    else {
+        this.title = "Not found";
+        return page({ component: NotFound });
+    }
+};
+const pages = {
+    "index.html": "/",
+    "404.html": "404"
 };
 
-return { onrender: router };
+return { onrender: router, pages, lang, head };
