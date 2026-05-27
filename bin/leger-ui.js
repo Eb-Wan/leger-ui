@@ -4,6 +4,7 @@ import { dirname, resolve } from "path";
 import { compile as lguiCompile } from "../lib/lgui-compiler.js";
 
 function main(parsedArgs) {
+    
     if (parsedArgs.flags.includes("-h") | parsedArgs.flags.includes("--help")) help();
     
     if (!parsedArgs.flaggedArgs["-i"]) exitError("No LGUI entrypoint given.");
@@ -13,8 +14,11 @@ function main(parsedArgs) {
     
     if (!parsedArgs.flaggedArgs["-o"]) exitError("No output directory given.");
     if (parsedArgs.flaggedArgs["-o"] && !existsSync(parsedArgs.flaggedArgs["-o"])) exitError("Output directory doesn't exists.");
+    
+    const params = {};
+    if (Array.isArray(parsedArgs.flaggedArgs["-d"])) parsedArgs.flaggedArgs["-d"].forEach(e => new URLSearchParams(e).forEach((value, name) => params[name] = value));
+    else if (parsedArgs.flaggedArgs["-d"]) new URLSearchParams(parsedArgs.flaggedArgs["-d"]).forEach((value, name) => params[name] = value);
 
-    const params = { ...JSON.parse(parsedArgs.flaggedArgs["-a"] ? parsedArgs.flaggedArgs["-a"] : "{}") };
     const outDir = resolve(parsedArgs.flaggedArgs["-o"]);
     const srcFile = resolve(parsedArgs.flaggedArgs["-i"]);
     const srcDir = dirname(parsedArgs.flaggedArgs["-i"]);
@@ -73,7 +77,12 @@ function parseArgs(argv) {
     argv.forEach(arg => {
         if (arg[0] == "-") parsedArgs.flags.push(arg);
         else {
-            if (previousArg[0] == "-") parsedArgs.flaggedArgs[previousArg] = arg;
+            if (previousArg[0] == "-") {
+                const flaggedArg = parsedArgs.flaggedArgs[previousArg];
+                if (Array.isArray(flaggedArg)) parsedArgs.flaggedArgs[previousArg] = [ ...flaggedArg, arg ];
+                else if (flaggedArg) parsedArgs.flaggedArgs[previousArg] = [ flaggedArg, arg ];
+                else parsedArgs.flaggedArgs[previousArg] = arg;
+            }
             else parsedArgs.args.push(arg);
         }
         previousArg = arg;
@@ -83,13 +92,13 @@ function parseArgs(argv) {
 
 function help() {
     console.log(`
-        -c : clear output directory before recompiling,
-        -i : /path/to/entry.lgui,
-        -o : /path/to/output/directory,
-        -a : '{ prop: "prop" }',
-        -w : watch project directory
-        --dev : watch project directory and start dev server
-        -h --help : show help message\n`);
+-c                      : clear output directory before compiling,
+-i /path/to/app.lgui    : input file,
+-o /path/to/directory   : output directory,
+-d name=value           : preprocessor definition,
+-w                      : watch project directory
+--dev                   : watch project directory and start dev server
+-h --help               : show help message\n`);
     process.exit(0);
 }
 

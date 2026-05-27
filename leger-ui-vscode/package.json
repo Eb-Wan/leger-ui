@@ -1,0 +1,29 @@
+{
+  "name": "leger-script",
+  "displayName": "Leger UI script",
+  "description": "Syntax highlight for leger scripts.",
+  "version": "0.0.4",
+  "author": {
+		"name": "EB-Wan"
+	},
+  "publisher": "EB-Wan",
+  "engines": {
+    "vscode": "^1.103.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "lgui",
+      "aliases": ["Leger-UI", "lgui"],
+      "extensions": [".lgui"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "lgui",
+      "scopeName": "source.lgui",
+      "path": "./syntaxes/lgui.tmLanguage.json"
+    }]
+  }
+}

@@ -1,0 +1,206 @@
+{
+  "scopeName": "source.lgui",
+  "name": "LGUI",
+  "fileTypes": ["lgui"],
+  "patterns": [
+    { "include": "#preprocessor" },
+    { "include": "#comment" },
+    { "include": "#template" },
+    { "include": "#string" },
+    { "include": "#javascript" }
+  ],
+  "repository": {
+    "preprocessor": {
+      "name": "meta.preprocessor.lgui",
+      "begin": "#",
+      "end": ";",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.preprocessor.lgui" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.preprocessor.lgui" }
+      },
+      "patterns": [
+        {
+          "name": "keyword.control.preprocessor.lgui",
+          "match": "\\b(include|define|export|print|log|warn|error)\\b"
+        },
+        {
+          "name": "string.quoted.double.lgui",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            { "name": "constant.character.escape.lgui", "match": "\\\\." }
+          ]
+        },
+        {
+          "name": "string.quoted.single.lgui",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            { "name": "constant.character.escape.lgui", "match": "\\\\." }
+          ]
+        }
+      ]
+    },
+    "comment": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.lgui",
+          "begin": "//",
+          "end": "$"
+        },
+        {
+          "name": "comment.block.lgui",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "template": {
+      "name": "meta.template.lgui",
+      "begin": "<>",
+      "end": "</>",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.tag.begin.lgui" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.tag.end.lgui" }
+      },
+      "patterns": [
+        { "include": "#preprocessor" },
+        { "include": "#comment" },
+        { "include": "#htmlTag" },
+        { "include": "#templateExpression" }
+      ]
+    },
+    "templateExpression": {
+      "name": "meta.embedded.expression.lgui",
+      "begin": "\\{",
+      "end": "\\}",
+      "beginCaptures": {
+        "0": { "name": "punctuation.section.embedded.begin.lgui" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.section.embedded.end.lgui" }
+      },
+      "patterns": [
+        { "include": "#comment" },
+        { "include": "#string" },
+        { "include": "#javascript" }
+      ]
+    },
+    "htmlTag": {
+      "patterns": [
+        {
+          "name": "meta.tag.sgml.html",
+          "begin": "(<)([a-zA-Z][a-zA-Z0-9-]*)",
+          "end": "(>|/>)",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.tag.begin.html" },
+            "2": { "name": "entity.name.tag.html" }
+          },
+          "endCaptures": {
+            "1": { "name": "punctuation.definition.tag.end.html" }
+          },
+          "patterns": [
+            { "include": "#htmlAttribute" },
+            { "include": "#templateExpression" }
+          ]
+        },
+        {
+          "name": "meta.tag.sgml.html",
+          "begin": "(</)([a-zA-Z][a-zA-Z0-9-]*)",
+          "end": "(>)",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.tag.begin.html" },
+            "2": { "name": "entity.name.tag.html" }
+          },
+          "endCaptures": {
+            "1": { "name": "punctuation.definition.tag.end.html" }
+          }
+        }
+      ]
+    },
+    "htmlAttribute": {
+      "patterns": [
+        {
+          "name": "meta.attribute.html",
+          "match": "([a-zA-Z_:][a-zA-Z0-9_:.-]*)(=)(?:\\{|\")",
+          "captures": {
+            "1": { "name": "entity.other.attribute-name.html" },
+            "2": { "name": "punctuation.separator.key-value.html" }
+          }
+        },
+        {
+          "name": "entity.other.attribute-name.html",
+          "match": "[a-zA-Z_:][a-zA-Z0-9_:.-]*(?=\\s|=|>|/>)"
+        }
+      ]
+    },
+    "string": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.lgui",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            { "name": "constant.character.escape.lgui", "match": "\\\\." }
+          ]
+        },
+        {
+          "name": "string.quoted.single.lgui",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            { "name": "constant.character.escape.lgui", "match": "\\\\." }
+          ]
+        },
+        {
+          "name": "string.template.lgui",
+          "begin": "`",
+          "end": "`",
+          "patterns": [
+            { "name": "constant.character.escape.lgui", "match": "\\\\." },
+            {
+              "name": "meta.template.expression.lgui",
+              "begin": "\\$\\{",
+              "end": "\\}",
+              "patterns": [
+                { "include": "#javascript" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "javascript": {
+      "patterns": [
+        {
+          "name": "keyword.control.lgui",
+          "match": "\\b(if|else|for|while|do|switch|case|break|continue|return|const|let|var|function|async|await|class|extends|static|new|this|super|try|catch|finally|throw)\\b"
+        },
+        {
+          "name": "constant.language.lgui",
+          "match": "\\b(true|false|null|undefined|Infinity|NaN)\\b"
+        },
+        {
+          "name": "support.function.lgui",
+          "match": "\\b(console|Math|String|Array|Object|Number|Boolean|Date|RegExp|JSON|Promise|Map|Set|Symbol)\\b"
+        },
+        {
+          "name": "keyword.operator.lgui",
+          "match": "(===|!==|==|!=|<=|>=|&&|\\|\\||\\+|-|\\*|\\/|%|\\?|:|=>|\\+=|-=|\\*=|\\/=)"
+        },
+        {
+          "name": "punctuation.lgui",
+          "match": "[{}\\[\\](),.;:]"
+        },
+        {
+          "name": "variable.name.lgui",
+          "match": "[a-zA-Z0-9_]+"
+        }
+      ]
+    }
+  }
+}
