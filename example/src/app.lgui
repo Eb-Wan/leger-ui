@@ -4,13 +4,12 @@
 #include ./components/navbar.lgui Navbar;
 #include ./pages/home.lgui Home;
 #include ./pages/not-found.lgui NotFound;
-#print appName;
 
 const lang = "en";
 const head = <>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{args.title} - #print appName;</title>
+    <title>${ args.title } - Leger-UI example</title>
     
 
     <script src="app.js" type="module"></script>
@@ -18,7 +17,7 @@ const head = <>
 
 const page = <>
     <Navbar/>
-    <main>{ args.component._instantiate() }</main>
+    <main>${ args.component._instantiate() }</main>
     <p>
         Test and more tests.
         <p>Test2</p>

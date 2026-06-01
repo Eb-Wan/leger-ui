@@ -58,13 +58,9 @@ function main(parsedArgs) {
     }
 }
 
-function compile(srcFile, outDir, params) {
-    try {
-        lguiCompile(srcFile, outDir, params);
-    }
-    catch (err) {
-        error(err.message);
-    }
+async function compile(srcFile, outDir, params) {
+    const err = await lguiCompile(srcFile, outDir, params);
+    if (err) error(err);
 }
 
 function parseArgs(argv) {
@@ -113,7 +109,6 @@ function error(message, level = "ERROR") {
 }
 function exitError(message, level = "ERROR") {
     console.error(`[ ${ level } ] ${ message }`);
-    process.exit(1);
 }
 
 main(parseArgs(process.argv));

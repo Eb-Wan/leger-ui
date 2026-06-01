@@ -5,6 +5,6 @@ return {
         this._update();
     },
     onrender: <>
-        <button onclick={ this.count }>Count = { this.value }</button>
+        <button onclick=${ this.count }>Count = ${ this.value }</button>
     </>
 }
