@@ -19,6 +19,8 @@ function main(parsedArgs) {
     if (Array.isArray(parsedArgs.flaggedArgs["-d"])) parsedArgs.flaggedArgs["-d"].forEach(e => new URLSearchParams(e).forEach((value, name) => params[name] = value));
     else if (parsedArgs.flaggedArgs["-d"]) new URLSearchParams(parsedArgs.flaggedArgs["-d"]).forEach((value, name) => params[name] = value);
 
+    log("Defined : "+JSON.stringify(params));
+
     const outDir = resolve(parsedArgs.flaggedArgs["-o"]);
     const srcFile = resolve(parsedArgs.flaggedArgs["-i"]);
     const srcDir = dirname(parsedArgs.flaggedArgs["-i"]);
