@@ -17,7 +17,7 @@ const head = <>
 
 const page = <>
     <Navbar/>
-    <main>${ args.component._instantiate() }</main>
+    <main>${ this._use(args.component) }</main>
     <p>
         Test and more tests.
         <p>Test2</p>
@@ -25,19 +25,19 @@ const page = <>
     </p>
 </>;
 
-const router = (args) => {
+function router(args) {
     if (args.path == "/") {
         this.title = "Home";
-        return page({ component: Home });
+        return this.page({ component: Home });
     }
     else {
         this.title = "Not found";
-        return page({ component: NotFound });
+        return this.page({ component: NotFound });
     }
-};
+}
 const pages = {
     "index.html": "/",
     "404.html": "404"
 };
 
-return { onrender: router, pages, lang, head };
+return { onrender: router, page, pages, lang, head };
