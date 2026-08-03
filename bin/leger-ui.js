@@ -1,4 +1,4 @@
-import { rmSync, statSync, watch, existsSync } from "fs";
+import { rmSync, statSync, watch, existsSync, mkdirSync } from "fs";
 import { spawn } from "child_process";
 import { dirname, resolve } from "path";
 import { compile as lguiCompile } from "../lib/lgui-compiler.js";
@@ -40,8 +40,10 @@ function main(parsedArgs) {
     }
     else if (parsedArgs.flags.includes("-w")) watchProject();
 
-    if (parsedArgs.flags.includes("-c")) rmSync(outDir+"/*", { recursive });
-    
+    if (parsedArgs.flags.includes("-c")) {
+        if (existsSync(outDir)) rmSync(outDir, { recursive: true, force: true });
+        mkdirSync(outDir);
+    }
 
     compile(srcFile, outDir, params);
     
